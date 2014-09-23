@@ -20,6 +20,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "TauAnalysis/CandidateTools/interface/CompositePtrCandidateT1T2MEtProducer.h"
+#include "AnalysisDataFormats/TauAnalysis/interface/CompositePtrCandidateT1T2MEt.h"
+#include "AnalysisDataFormats/TauAnalysis/interface/CompositePtrCandidateT1T2MEtFwd.h"
 
 using namespace reco;
 
@@ -54,6 +57,7 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
   crecsuperclusterhit(iConfig.getUntrackedParameter<bool>("RecSuperClusterHit", false)),
   crecmuon(iConfig.getUntrackedParameter<bool>("RecMuon", false)),
   crectau(iConfig.getUntrackedParameter<bool>("RecTau", false)),
+  crectautaupairs(iConfig.getUntrackedParameter<bool>("RecTauTauPairs", false)),
   crecmutautaupairs(iConfig.getUntrackedParameter<bool>("RecMuTauTauPairs", false)),
   creceltautaupairs(iConfig.getUntrackedParameter<bool>("RecElTauTauPairs", false)),
   crecelectron(iConfig.getUntrackedParameter<bool>("RecElectron", false)),
@@ -1073,84 +1077,84 @@ void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       if(strs.size() == 1) strs.push_back(string(""));
       tauregexes.push_back(pair<boost::regex, string>(boost::regex(strs[0].c_str()), strs[1]));
     }
-	vector<pair<boost::regex, string> > photonregexes;
-	for(unsigned i = 0 ; i < cPhotonHLTriggerMatching.size() ; i++)
-	  {
-	    vector<string> strs;
-	    boost::split(strs, cPhotonHLTriggerMatching[i], boost::is_any_of(":"));	
-	    if(strs.size() == 1) strs.push_back(string(""));
-	    photonregexes.push_back(pair<boost::regex, string>(boost::regex(strs[0].c_str()), strs[1]));
-	  }
-	vector<pair<boost::regex, string> > jetregexes;
-	for(unsigned i = 0 ; i < cJetHLTriggerMatching.size() ; i++)
-	  {
-	    vector<string> strs;
-	    boost::split(strs, cJetHLTriggerMatching[i], boost::is_any_of(":"));	
-	    if(strs.size() == 1) strs.push_back(string(""));
-	    jetregexes.push_back(pair<boost::regex, string>(boost::regex(strs[0].c_str()), strs[1]));
-	  }
+  vector<pair<boost::regex, string> > photonregexes;
+  for(unsigned i = 0 ; i < cPhotonHLTriggerMatching.size() ; i++)
+    {
+      vector<string> strs;
+      boost::split(strs, cPhotonHLTriggerMatching[i], boost::is_any_of(":"));	
+      if(strs.size() == 1) strs.push_back(string(""));
+      photonregexes.push_back(pair<boost::regex, string>(boost::regex(strs[0].c_str()), strs[1]));
+    }
+  vector<pair<boost::regex, string> > jetregexes;
+  for(unsigned i = 0 ; i < cJetHLTriggerMatching.size() ; i++)
+    {
+      vector<string> strs;
+      boost::split(strs, cJetHLTriggerMatching[i], boost::is_any_of(":"));	
+      if(strs.size() == 1) strs.push_back(string(""));
+      jetregexes.push_back(pair<boost::regex, string>(boost::regex(strs[0].c_str()), strs[1]));
+    }
+  
+  run_hltcount = HLTConfiguration.size();
+  string allnames;
+  string allmuonnames;
+  string allelectronnames;
+  string alltaunames;
+  string allphotonnames;
+  string alljetnames;
+  
+  AddTriggerList(iRun, HLTConfiguration, muonregexes,     muontriggers,     allmuonnames);
+  AddTriggerList(iRun, HLTConfiguration, electronregexes, electrontriggers, allelectronnames);
+  AddTriggerList(iRun, HLTConfiguration, tauregexes,      tautriggers,      alltaunames);
+  AddTriggerList(iRun, HLTConfiguration, photonregexes,   photontriggers,   allphotonnames);
+  AddTriggerList(iRun, HLTConfiguration, jetregexes,      jettriggers,      alljetnames);
+  
 	
-	run_hltcount = HLTConfiguration.size();
-	string allnames;
-	string allmuonnames;
-	string allelectronnames;
-	string alltaunames;
-	string allphotonnames;
-	string alljetnames;
-	
-	AddTriggerList(iRun, HLTConfiguration, muonregexes,     muontriggers,     allmuonnames);
-	AddTriggerList(iRun, HLTConfiguration, electronregexes, electrontriggers, allelectronnames);
-	AddTriggerList(iRun, HLTConfiguration, tauregexes,      tautriggers,      alltaunames);
-	AddTriggerList(iRun, HLTConfiguration, photonregexes,   photontriggers,   allphotonnames);
-	AddTriggerList(iRun, HLTConfiguration, jetregexes,      jettriggers,      alljetnames);
-
-	
-	for(unsigned i = 0; i < HLTConfiguration.size(); ++i)
-	  {
-	    for(unsigned j = 0 ; j < trigregexes.size() ; j++)
-	      {
-		if(boost::regex_match(HLTConfiguration.triggerName(i), trigregexes[j]))
-		  {
-		    HLTriggerIndexSelection.push_back(i);
-		  }
-	      }
-	    allnames += HLTConfiguration.triggerName(i) + string(" ");
-	  }
-	if(allnames.size() > 20000)
-	  {
-	    throw cms::Exception("Too long trigger names");
-	    //allnames = string("TOOLONGTRIGGERNAMES::ERROR ");
-	  }
-	if(muontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many muon triggers!" << std::endl;
-	if(electrontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many electron triggers!" << std::endl;
-	if(tautriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many tau triggers!" << std::endl;
-	if(photontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many photon triggers!" << std::endl;
-	if(jettriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many jet triggers!" << std::endl;
-	
-	strcpy(run_hltnames, allnames.c_str());
-	strcpy(run_hltmunames, allmuonnames.c_str());
-	strcpy(run_hltelnames, allelectronnames.c_str());
-	strcpy(run_hlttaunames, alltaunames.c_str());
-	strcpy(run_hltphotonnames, allphotonnames.c_str());
-	strcpy(run_hltjetnames, alljetnames.c_str());
-	string alltaudiscriminators;
-	if(cTauDiscriminators.size() > sizeof(tau_dishps[0])*8)
-	  throw cms::Exception("Too many tau discrimintors selected");
-	for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
-	  {
-	    alltaudiscriminators += cTauDiscriminators[i] + string(" ");
-	  }
-	strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
-	
-	run_hltprescaletablescount = HLTConfiguration.prescaleSize()*HLTConfiguration.size();
-	for(unsigned j = 0 ; j < HLTConfiguration.prescaleSize() ; j++)
-	  {
-	    for(unsigned i = 0 ; i < HLTConfiguration.size() ; i++)
-	      {
-		run_hltprescaletables[i+HLTConfiguration.size()*j] = HLTConfiguration.prescaleValue(j, HLTConfiguration.triggerName(i));
-	      }
-	  }	
-	runtree->Fill();
+  for(unsigned i = 0; i < HLTConfiguration.size(); ++i)
+    {
+      for(unsigned j = 0 ; j < trigregexes.size() ; j++)
+	{
+	  if(boost::regex_match(HLTConfiguration.triggerName(i), trigregexes[j]))
+	    {
+	      HLTriggerIndexSelection.push_back(i);
+	    }
+	}
+      allnames += HLTConfiguration.triggerName(i) + string(" ");
+    }
+  if(allnames.size() > 20000)
+    {
+      throw cms::Exception("Too long trigger names");
+      //allnames = string("TOOLONGTRIGGERNAMES::ERROR ");
+    }
+  if(muontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many muon triggers!" << std::endl;
+  if(electrontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many electron triggers!" << std::endl;
+  if(tautriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many tau triggers!" << std::endl;
+  if(photontriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many photon triggers!" << std::endl;
+  if(jettriggers.size() > 32) throw cms::Exception("RootMaker") << "Too many jet triggers!" << std::endl;
+  
+  strcpy(run_hltnames, allnames.c_str());
+  strcpy(run_hltmunames, allmuonnames.c_str());
+  strcpy(run_hltelnames, allelectronnames.c_str());
+  strcpy(run_hlttaunames, alltaunames.c_str());
+  strcpy(run_hltphotonnames, allphotonnames.c_str());
+  strcpy(run_hltjetnames, alljetnames.c_str());
+  string alltaudiscriminators;
+  if(cTauDiscriminators.size() > sizeof(tau_dishps[0])*8)
+    throw cms::Exception("Too many tau discrimintors selected");
+  for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
+    {
+      alltaudiscriminators += cTauDiscriminators[i] + string(" ");
+    }
+  strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
+  
+  run_hltprescaletablescount = HLTConfiguration.prescaleSize()*HLTConfiguration.size();
+  for(unsigned j = 0 ; j < HLTConfiguration.prescaleSize() ; j++)
+    {
+      for(unsigned i = 0 ; i < HLTConfiguration.size() ; i++)
+	{
+	  run_hltprescaletables[i+HLTConfiguration.size()*j] = HLTConfiguration.prescaleValue(j, HLTConfiguration.triggerName(i));
+	}
+    }	
+  runtree->Fill();
 }
 
 void RootMaker::beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup)
@@ -1678,12 +1682,12 @@ void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       pfmetmva_ex = (*pfMetMVA)[0].px();
       pfmetmva_ey = (*pfMetMVA)[0].py();
       
-      /*		edm::Handle<PFMEtSignCovMatrix> MetSignMatrix;
-	iEvent.getByLabel(edm::InputTag("pfMEtSignCovMatrix"), MetSignMatrix);*/
-      pfmetsigxx = 0.0f;//(*MetSignMatrix)(0,0);
-      pfmetsigxy = 0.0f;//(*MetSignMatrix)(0,1);
-      pfmetsigyx = 0.0f;//(*MetSignMatrix)(1,0);
-      pfmetsigyy = 0.0f;//(*MetSignMatrix)(1,1);
+      edm::Handle<PFMEtSignCovMatrix> MetSignMatrix;
+      iEvent.getByLabel(edm::InputTag("pfMEtMVACov"), MetSignMatrix);
+      pfmetsigxx = (*MetSignMatrix)(0,0);
+      pfmetsigxy = (*MetSignMatrix)(0,1);
+      pfmetsigyx = (*MetSignMatrix)(1,0);
+      pfmetsigyy = (*MetSignMatrix)(1,1);
     }
   
   genweight = 1.;
@@ -2710,7 +2714,6 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
 
-	  tau_againstelectronmva5raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA5raw");      //OK
 	  tau_byIsolationmva3newDMwoLTraw[tau_count]              = (*Taus)[i].tauID("byIsolationMVA3newDMwoLTraw"); //OK
 	  tau_byIsolationmva3newDMwLTraw[tau_count]               = (*Taus)[i].tauID("byIsolationMVA3newDMwLTraw");  //OK
 	  tau_againstelectronmva5raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA5raw");      //OK
@@ -3201,6 +3204,52 @@ RootMaker::DCA RootMaker::calculateDCA(const pat::Tau& tau1, const pat::Tau& tau
 	return dca;
 }
 
+bool RootMaker::AddTauTauPairs(const edm::Event& iEvent)
+{
+
+  edm::Handle<PATDiTauPairCollection> diTauHandle;
+  iEvent.getByLabel("selectedDiTau",diTauHandle);
+  if( !diTauHandle.isValid() )  
+    edm::LogError("DataNotAvailable")
+      << "No diTau label available \n";
+  const PATDiTauPairCollection* diTaus = diTauHandle.product();
+
+  if(diTaus->size()<1){
+    cout << " No diTau !!! " << endl;
+    return false;
+  }
+
+  tautaupair_count = diTaus->size();
+  for(unsigned i = 0 ; i < diTaus->size() ; i++)
+    {
+
+      const pat::Tau* tau1 = dynamic_cast<const pat::Tau*>(&*((*diTaus)[i].leg1()));
+      const pat::Tau* tau2 = dynamic_cast<const pat::Tau*>(&*((*diTaus)[i].leg2()));
+      if(!tau1 || !tau2) throw cms::Exception("RootMaker::AddTauTauPairs") << "Candidates are not PAT taus";
+      DCA dca = calculateDCA(*tau1, *tau2);
+
+      tautaupair_leg1_px[i] = ((*diTaus)[i].leg1())->px();
+      tautaupair_leg1_py[i] = ((*diTaus)[i].leg1())->py();
+      tautaupair_leg1_pz[i] = ((*diTaus)[i].leg1())->pz();
+      tautaupair_leg1_energy[i] = ((*diTaus)[i].leg1())->energy();
+      tautaupair_leg2_px[i] = ((*diTaus)[i].leg2())->px();
+      tautaupair_leg2_py[i] = ((*diTaus)[i].leg2())->py();
+      tautaupair_leg2_pz[i] = ((*diTaus)[i].leg2())->pz();
+      tautaupair_leg2_energy[i] = ((*diTaus)[i].leg2())->energy();
+      int errFlag = 0;
+      tautaupair_svfit_int_valid[i] = ((*diTaus)[i].hasNSVFitSolutions() && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",&errFlag)!=0 && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->isValidSolution() );
+      tautaupair_svfit_mass_int[i] = ((*diTaus)[i].hasNSVFitSolutions() && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",&errFlag)!=0 && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->isValidSolution() ) ? (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->mass()        : -99; 
+      tautaupair_svfit_mass_int_err_up[i] = ((*diTaus)[i].hasNSVFitSolutions() && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",&errFlag)!=0 && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->isValidSolution() ) ? (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->massErrUp()   : -99; 
+      tautaupair_svfit_mass_int_err_down[i] = ((*diTaus)[i].hasNSVFitSolutions() && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",&errFlag)!=0 && (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->isValidSolution() ) ? (*diTaus)[i].nSVfitSolution("psKine_MEt_int",0)->massErrDown() : -99; 
+
+      tautaupair_dca2d[i] = dca.dca2d;
+      tautaupair_dca2d_err[i] = dca.dca2dErr;
+      tautaupair_dca3d[i] = dca.dca3d;
+      tautaupair_dca3d_err[i] = dca.dca3dErr;
+    }
+
+  return true;
+}
 
 bool RootMaker::AddMuTauTauPairs(const edm::Event& iEvent)
 {
