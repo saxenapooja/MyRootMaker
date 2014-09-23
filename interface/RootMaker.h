@@ -778,7 +778,20 @@ class RootMaker : public edm::EDAnalyzer{
   Float_t tau_againstelectronDeadECAL[M_taumaxcount];
   Float_t tau_againstelectronmva5category[M_taumaxcount];
   Float_t tau_bycombinedisolationdeltabetacorrraw3hits[M_taumaxcount];
-  
+  Float_t tau_hpsMVA3oldDMwLT[M_taumaxcount];
+  Float_t tau_hpsMVA3oldDMwoLT[M_taumaxcount];
+  Int_t   tau_tightestAntiMu3WP[M_taumaxcount];
+  Int_t   tau_tightestAntiEleWP[M_taumaxcount];
+  Int_t   tau_tightestAntiMu2WP[M_taumaxcount];
+  Int_t   tau_tightestHPSMVA3oldDMwoLTWP[M_taumaxcount];
+  //  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount];
+  Int_t   tau_tightestHPSMVA3newDMwLTWP[M_taumaxcount];
+  Int_t   tau_tightestHPSMVA3newDMwoLTWP[M_taumaxcount];
+  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount];
+  Int_t   tau_tightestAntiMuWP[M_taumaxcount];
+  Int_t   tau_tightestAntiMuMVAWP[M_taumaxcount];
+
+
   Float_t tau_emfraction[M_taumaxcount];
   Float_t tau_newemfraction[M_taumaxcount];
   Float_t tau_hcaltotoverplead[M_taumaxcount];

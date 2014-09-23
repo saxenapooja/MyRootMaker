@@ -10,6 +10,7 @@
 #include <DataFormats/RecoCandidate/interface/IsoDepositVetos.h>
 //#include "AnalysisDataFormats/TauAnalysis/interface/PFMEtSignCovMatrix.h"
 //#include "RecoJets/JetProducers/interface/PileupJetIdentifier.h"
+#include "DataFormats/METReco/interface/PFMEtSignCovMatrix.h"
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
@@ -611,9 +612,19 @@ void RootMaker::beginJob(){
   tree->Branch("tau_againstelectronMediummva5", tau_againstelectronMediummva5, "tau_againstelectronMediummva5[tau_count]/F");
   tree->Branch("tau_againstelectronTightmva5", tau_againstelectronTightmva5, "tau_againstelectronTightmva5[tau_count]/F");
   tree->Branch("tau_againstelectronDeadECAL", tau_againstelectronDeadECAL, "tau_againstelectronDeadECAL[tau_count]/F");
-
   tree->Branch("tau_againstelectronmva5category", tau_againstelectronmva5category, "tau_againstelectronmva5category[tau_count]/F");
   tree->Branch("tau_bycombinedisolationdeltabetacorrraw3hits", tau_bycombinedisolationdeltabetacorrraw3hits, "tau_bycombinedisolationdeltabetacorrraw3hits[tau_count]/F");
+  tree->Branch("tau_hpsMVA3oldDMwLT", tau_hpsMVA3oldDMwLT, "tau_hpsMVA3oldDMwLT[tau_count]/F");
+  tree->Branch("tau_hpsMVA3oldDMwoLT", tau_hpsMVA3oldDMwoLT, "tau_hpsMVA3oldDMwoLT[tau_count]/F");
+  tree->Branch("tau_tightestAntiMu3WP", tau_tightestAntiMu3WP, "tau_tightestAntiMu3WP[tau_count]/I");
+  tree->Branch("tau_tightestAntiEleWP",tau_tightestAntiEleWP , "tau_tightestAntiEleWP[tau_count]/I");
+  tree->Branch("tau_tightestAntiMu2WP", tau_tightestAntiMu2WP, "tau_tightestAntiMu2WP[tau_count]/I");
+  tree->Branch("tau_tightestHPSMVA3oldDMwoLTWP", tau_tightestHPSMVA3oldDMwoLTWP, "tau_tightestHPSMVA3oldDMwoLTWP[tau_count]/I");
+  tree->Branch("tau_tightestHPSMVA3newDMwLTWP", tau_tightestHPSMVA3newDMwLTWP, "tau_tightestHPSMVA3newDMwLTWP[tau_count]/I");
+  tree->Branch("tau_tightestHPSMVA3newDMwoLTWP", tau_tightestHPSMVA3newDMwoLTWP, "tau_tightestHPSMVA3newDMwoLTWP[tau_count]/I");
+  tree->Branch("tau_tightestHPSMVA3oldDMwLTWP", tau_tightestHPSMVA3oldDMwLTWP, "tau_tightestHPSMVA3oldDMwLTWP[tau_count]/I");
+  tree->Branch("tau_tightestAntiMuWP", tau_tightestAntiMuWP, "tau_tightestAntiMuWP[tau_count]/I");
+  tree->Branch("tau_tightestAntiMuMVAWP", tau_tightestAntiMuMVAWP, "tau_tightestAntiMuMVAWP[tau_count]/I");
 
   tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
   tree->Branch("tau_L1trigger_match", tau_L1trigger_match, "tau_L1trigger_match[tau_count]/O");
@@ -1684,17 +1695,21 @@ void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       edm::Handle<PFMEtSignCovMatrix> MetSignMatrix;
       iEvent.getByLabel(edm::InputTag("pfMEtMVACov"), MetSignMatrix);
-      pfmetsigxx = (*MetSignMatrix)(0,0);
-      pfmetsigxy = (*MetSignMatrix)(0,1);
-      pfmetsigyx = (*MetSignMatrix)(1,0);
-      pfmetsigyy = (*MetSignMatrix)(1,1);
+
+      if(MetSignMatrix.isValid()) {
+	const TMatrixD cov = (*MetSignMatrix);
+	pfmetsigxx = cov(0,0);
+	pfmetsigxy = cov(0,1);
+	pfmetsigyx = cov(1,0);
+	pfmetsigyy = cov(1,1);
+      }
     }
   
   genweight = 1.;
   numpileupinteractionsminus = -1;
-  numpileupinteractions = -1;
-  numpileupinteractionsplus = -1;
-  numtruepileupinteractions = -1.0f;
+  numpileupinteractions      = -1;
+  numpileupinteractionsplus  = -1;
+  numtruepileupinteractions  = -1.0f;
   
   if(cgen || cgenallparticles)
     {
@@ -2714,18 +2729,77 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
 
-	  tau_byIsolationmva3newDMwoLTraw[tau_count]              = (*Taus)[i].tauID("byIsolationMVA3newDMwoLTraw"); //OK
-	  tau_byIsolationmva3newDMwLTraw[tau_count]               = (*Taus)[i].tauID("byIsolationMVA3newDMwLTraw");  //OK
-	  tau_againstelectronmva5raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA5raw");      //OK
-	  tau_againstelectronVLoosemva5[tau_count]                = (*Taus)[i].tauID("againstElectronVLooseMVA5");
-	  tau_againstelectronLoosemva5[tau_count]                 = (*Taus)[i].tauID("againstElectronLooseMVA5");
-	  tau_againstelectronMediummva5[tau_count]                = (*Taus)[i].tauID("againstElectronMediumMVA5");
-	  tau_againstelectronTightmva5[tau_count]                 = (*Taus)[i].tauID("againstElectronTightMVA5");
-	  tau_againstelectronDeadECAL[tau_count]                  = (*Taus)[i].tauID("againstElectronDeadECAL");
-	  tau_againstelectronmva5category[tau_count]              = (*Taus)[i].tauID("againstElectronMVA5category"); //OK
-	  tau_bycombinedisolationdeltabetacorrraw3hits[tau_count] = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"); //OK
+	  // storing discriminators
+	  tau_tightestHPSMVA3newDMwLTWP[tau_count] = -1;
+	  if((*Taus)[i].tauID("byVLooseIsolationMVA3newDMwLT")  > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 0;
+	  if((*Taus)[i].tauID("byLooseIsolationMVA3newDMwLT")   > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 1;
+	  if((*Taus)[i].tauID("byMediumIsolationMVA3newDMwLT")  > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 2;
+	  if((*Taus)[i].tauID("byTightIsolationMVA3newDMwLT")   > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 3;
+	  if((*Taus)[i].tauID("byVTightIsolationMVA3newDMwLT")  > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 4;
+	  if((*Taus)[i].tauID("byVVTightIsolationMVA3newDMwLT") > 0.5 ) tau_tightestHPSMVA3newDMwLTWP[tau_count] = 5;
+
+	  tau_tightestHPSMVA3newDMwoLTWP[tau_count] = -1;
+	  if((*Taus)[i].tauID("byVLooseIsolationMVA3newDMwoLT")  > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 0;
+	  if((*Taus)[i].tauID("byLooseIsolationMVA3newDMwoLT")   > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 1;
+	  if((*Taus)[i].tauID("byMediumIsolationMVA3newDMwoLT")  > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 2;
+	  if((*Taus)[i].tauID("byTightIsolationMVA3newDMwoLT")   > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 3;
+	  if((*Taus)[i].tauID("byVTightIsolationMVA3newDMwoLT")  > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 4;
+	  if((*Taus)[i].tauID("byVVTightIsolationMVA3newDMwoLT") > 0.5 ) tau_tightestHPSMVA3newDMwoLTWP[tau_count] = 5;
+
+	  tau_tightestHPSMVA3oldDMwLTWP[tau_count] = -1;
+	  if((*Taus)[i].tauID("byVLooseIsolationMVA3oldDMwLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 0;
+	  if((*Taus)[i].tauID("byLooseIsolationMVA3oldDMwLT")   > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 1;
+	  if((*Taus)[i].tauID("byMediumIsolationMVA3oldDMwLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 2;
+	  if((*Taus)[i].tauID("byTightIsolationMVA3oldDMwLT")   > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 3;
+	  if((*Taus)[i].tauID("byVTightIsolationMVA3oldDMwLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 4;
+	  if((*Taus)[i].tauID("byVVTightIsolationMVA3oldDMwLT") > 0.5 ) tau_tightestHPSMVA3oldDMwLTWP[tau_count] = 5;
+
+	  tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = -1;
+	  if((*Taus)[i].tauID("byVLooseIsolationMVA3oldDMwoLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 0;
+	  if((*Taus)[i].tauID("byLooseIsolationMVA3oldDMwoLT")   > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 1;
+	  if((*Taus)[i].tauID("byMediumIsolationMVA3oldDMwoLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 2;
+	  if((*Taus)[i].tauID("byTightIsolationMVA3oldDMwoLT")   > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 3;
+	  if((*Taus)[i].tauID("byVTightIsolationMVA3oldDMwoLT")  > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 4;
+	  if((*Taus)[i].tauID("byVVTightIsolationMVA3oldDMwoLT") > 0.5 ) tau_tightestHPSMVA3oldDMwoLTWP[tau_count] = 5;
+
+	  tau_tightestAntiMuWP[tau_count] = -1; 
+	  if( (*Taus)[i].tauID("againstMuonLoose")  > 0.5 )  tau_tightestAntiMuWP[tau_count] = 1; 
+	  if( (*Taus)[i].tauID("againstMuonMedium") > 0.5 )  tau_tightestAntiMuWP[tau_count] = 2; 
+	  if( (*Taus)[i].tauID("againstMuonTight")  > 0.5 )  tau_tightestAntiMuWP[tau_count] = 3; 
+
+	  tau_tightestAntiMu2WP[tau_count] = -1;   
+	  if( (*Taus)[i].tauID("againstMuonLoose2")  > 0.5 )  tau_tightestAntiMu2WP[tau_count] = 1;   
+	  if( (*Taus)[i].tauID("againstMuonMedium2") > 0.5 )  tau_tightestAntiMu2WP[tau_count] = 2;   
+	  if( (*Taus)[i].tauID("againstMuonTight2")  > 0.5 )  tau_tightestAntiMu2WP[tau_count] = 3;   
+
+	  tau_tightestAntiMu3WP[tau_count] = -1;   
+	  if( (*Taus)[i].tauID("againstMuonLoose3") > 0.5 ) tau_tightestAntiMu3WP[tau_count] = 1;   
+	  if( (*Taus)[i].tauID("againstMuonTight3") > 0.5 ) tau_tightestAntiMu3WP[tau_count] = 2;   
+
+	  tau_tightestAntiMuMVAWP[tau_count] = -1;   
+	  if( (*Taus)[i].tauID("againstMuonLooseMVA") > 0.5 ) tau_tightestAntiMuMVAWP[tau_count] = 1;   
+    
+	  tau_tightestAntiEleWP[tau_count] = -1;
+	  if((*Taus)[i].tauID("againstElectronVLooseMVA5") > 0.5) tau_tightestAntiEleWP[tau_count] = 1;
+	  if((*Taus)[i].tauID("againstElectronLooseMVA5")  > 0.5) tau_tightestAntiEleWP[tau_count] = 2;
+	  if((*Taus)[i].tauID("againstElectronMediumMVA5") > 0.5) tau_tightestAntiEleWP[tau_count] = 3;
+	  if((*Taus)[i].tauID("againstElectronTightMVA5")  > 0.5) tau_tightestAntiEleWP[tau_count] = 4;
+
+	  // 	  tau_againstelectronVLoosemva5[tau_count]                = (*Taus)[i].tauID("againstElectronVLooseMVA5");
+	  // 	  tau_againstelectronLoosemva5[tau_count]                 = (*Taus)[i].tauID("againstElectronLooseMVA5");
+	  // 	  tau_againstelectronMediummva5[tau_count]                = (*Taus)[i].tauID("againstElectronMediumMVA5");
+	  // 	  tau_againstelectronTightmva5[tau_count]                 = (*Taus)[i].tauID("againstElectronTightMVA5");
+	  
+	  tau_byIsolationmva3newDMwoLTraw[tau_count]              = (*Taus)[i].tauID("byIsolationMVA3newDMwoLTraw"); //keepIt
+	  tau_byIsolationmva3newDMwLTraw[tau_count]               = (*Taus)[i].tauID("byIsolationMVA3newDMwLTraw");  //keepIt
+	  tau_againstelectronmva5raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA5raw");      //KeepIt
+	  tau_againstelectronDeadECAL[tau_count]                  = (*Taus)[i].tauID("againstElectronDeadECAL");     //KeepIt
+	  tau_againstelectronmva5category[tau_count]              = (*Taus)[i].tauID("againstElectronMVA5category"); //KeepIt
+	  tau_bycombinedisolationdeltabetacorrraw3hits[tau_count] = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"); //keepIt
 	  tau_signalPFChargedHadrCands_size[tau_count]            = (*Taus)[i].signalPFChargedHadrCands().size(); 	  
 	  tau_signalPFGammaCands_size[tau_count]	          = (*Taus)[i].signalPFGammaCands().size();
+	  tau_hpsMVA3oldDMwLT[tau_count]                          = (*Taus)[i].tauID("byIsolationMVA3oldDMwLTraw");
+	  tau_hpsMVA3oldDMwoLT[tau_count]                         = (*Taus)[i].tauID("byIsolationMVA3oldDMwoLTraw");
 	  if( ((*Taus)[i].genJet())) 
 	    tau_genTaudecayMode[tau_count]                        = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
 	  else tau_genTaudecayMode[tau_count]                     = -1.;
