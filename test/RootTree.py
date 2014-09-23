@@ -72,7 +72,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(5000)
 )
 
 # Load various tools before PAT
@@ -152,7 +152,7 @@ process.cleanPatMuonsForSVfit.preselection      = cms.string('pt > 24 & abs(eta)
 process.cleanPatMuonsForSVfit.finalCut          = cms.string('')
 process.cleanPatTausForSVfit                    = process.cleanPatTaus.clone()
 process.cleanPatTausForSVfit.finalCut           = cms.string('')
-process.cleanPatTausForSVfit.preselection       = cms.string('pt > 20 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & (tauID("againstMuonLoose") > 0.5 || tauID("againstMuonLoose2")) & (tauID("againstElectronLoose") > 0.5 || tauID("againstElectronMVA") > 0.5 || tauID("againstElectronLooseMVA3") > 0.5)')
+process.cleanPatTausForSVfit.preselection       = cms.string('pt > 20 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & (tauID("againstMuonLoose") > 0.5 || tauID("againstMuonLoose2")) & (tauID("againstElectronLoose") > 0.5)')
 
 # Type-1 MET
 process.patDefaultSequence.remove(process.patMETs)
@@ -174,7 +174,7 @@ process.isolatedPatMuons.finalCut         = cms.string('')
 process.isolatedPatTaus                   = process.cleanPatTaus.clone()
 # Don't use the new discriminators here so that we have the same definition as the others
 #process.isolatedPatTaus.preselection = cms.string('pt > 20 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & (tauID("againstMuonLoose") > 0.5 || tauID("againstMuonLoose2")) & (tauID("againstElectronLoose") > 0.5 || tauID("againstElectronMVA") > 0.5 || tauID("againstElectronLooseMVA3") > 0.5) & (tauID("byLooseCombinedIsolationDeltaBetaCorr") > 0.5 || tauID("byLooseIsolationMVA2") > 0.5 || tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5)')
-process.isolatedPatTaus.preselection      = cms.string('pt > 20 && abs(eta) < 2.3 && tauID("decayModeFinding") > 0.5 && tauID("againstMuonLoose") > 0.5 && tauID("againstElectronLooseMVA3") > 0.5 && tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5')
+process.isolatedPatTaus.preselection      = cms.string('pt > 20 && abs(eta) < 2.3 && tauID("decayModeFinding") > 0.5 && tauID("againstMuonLoose") > 0.5 && tauID("againstElectronLoose") > 0.5 && tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5')
 process.isolatedPatTaus.finalCut          = cms.string('')
 
 if isData:
@@ -416,46 +416,88 @@ RecTauHLTriggerMatching = cms.untracked.vstring(
 
 RecTauDiscriminators = cms.untracked.vstring(
 'decayModeFinding',
-'againstElectronVLooseMVA2',
+'decayModeFindingNewDMs',
+'decayModeFindingOldDMs',
+#'againstElectronVLooseMVA2',
 'againstElectronLoose',
-'againstElectronLooseMVA2',
-'againstElectronLooseMVA3',
-'againstElectronMVA',
+#'againstElectronLooseMVA2',
+#'againstElectronLooseMVA3',
+#'againstElectronMVA',
 'againstElectronMedium',
-'againstElectronMediumMVA2',
-'againstElectronMediumMVA3',
+#'againstElectronMediumMVA2',
+#'againstElectronMediumMVA3',
 'againstElectronTight',
-'againstElectronTightMVA2',
-'againstElectronTightMVA3',
-'againstElectronVTightMVA3',
+#'againstElectronTightMVA2',
+#'againstElectronTightMVA3',
+#'againstElectronVTightMVA3',
 'againstElectronDeadECAL',
+'againstElectronLooseMVA5',
+#'againstElectronMVA5category',
+#'againstElectronMVA5raw',
+'againstElectronMediumMVA5',
+'againstElectronTightMVA5',
+'againstElectronVLooseMVA5',
+'againstElectronVTightMVA5',
 'againstMuonLoose',
 'againstMuonMedium',
 'againstMuonTight',
 'againstMuonLoose2',
 'againstMuonMedium2',
 'againstMuonTight2',
+'againstMuonLooseMVA',
+#'againstMuonMVAraw',
+'againstMuonMediumMVA',
+'againstMuonTight3',
+'againstMuonTightMVA',
+#'byIsolationMVA3newDMwLTraw',
+#'byIsolationMVA3newDMwoLTraw',
+#'byIsolationMVA3oldDMwLTraw',
+#'byIsolationMVA3oldDMwoLTraw',
+'byLooseIsolationMVA3newDMwLT',
+'byLooseIsolationMVA3newDMwoLT',
+'byLooseIsolationMVA3oldDMwLT',
+'byLooseIsolationMVA3oldDMwoLT',
+'byMediumIsolationMVA3newDMwLT',
+'byMediumIsolationMVA3newDMwoLT',
+'byMediumIsolationMVA3oldDMwLT',
+'byMediumIsolationMVA3oldDMwoLT',
+'byTightIsolationMVA3newDMwLT',
+'byTightIsolationMVA3newDMwoLT',
+'byTightIsolationMVA3oldDMwLT',
+'byTightIsolationMVA3oldDMwoLT',
+'byVLooseIsolationMVA3newDMwLT',
+'byVLooseIsolationMVA3newDMwoLT',
+'byVLooseIsolationMVA3oldDMwLT',
+'byVLooseIsolationMVA3oldDMwoLT',
+'byVTightIsolationMVA3newDMwLT',
+'byVTightIsolationMVA3newDMwoLT',
+'byVTightIsolationMVA3oldDMwLT',
+'byVTightIsolationMVA3oldDMwoLT',
+'byVVTightIsolationMVA3newDMwLT',
+'byVVTightIsolationMVA3newDMwoLT',
+'byVVTightIsolationMVA3oldDMwLT',
+'byVVTightIsolationMVA3oldDMwoLT',
 'byLooseCombinedIsolationDeltaBetaCorr',
 'byLooseCombinedIsolationDeltaBetaCorr3Hits',
 'byLooseIsolation',
-'byLooseIsolationDeltaBetaCorr',
-'byLooseIsolationMVA',
-'byLooseIsolationMVA2',
+#'byLooseIsolationDeltaBetaCorr',
+#'byLooseIsolationMVA',
+#'byLooseIsolationMVA2',
 'byMediumCombinedIsolationDeltaBetaCorr',
 'byMediumCombinedIsolationDeltaBetaCorr3Hits',
-'byMediumIsolation',
-'byMediumIsolationDeltaBetaCorr',
-'byMediumIsolationMVA',
-'byMediumIsolationMVA2',
+#'byMediumIsolation',
+#'byMediumIsolationDeltaBetaCorr',
+#'byMediumIsolationMVA',
+#'byMediumIsolationMVA2',
 'byTightCombinedIsolationDeltaBetaCorr',
 'byTightCombinedIsolationDeltaBetaCorr3Hits',
-'byTightIsolation',
-'byTightIsolationDeltaBetaCorr',
-'byTightIsolationMVA',
-'byTightIsolationMVA2',
+#'byTightIsolation',
+#'byTightIsolationDeltaBetaCorr',
+#'byTightIsolationMVA',
+#'byTightIsolationMVA2',
 'byVLooseCombinedIsolationDeltaBetaCorr',
-'byVLooseIsolation',
-'byVLooseIsolationDeltaBetaCorr'
+#'byVLooseIsolation',
+#'byVLooseIsolationDeltaBetaCorr'
 ),
 
 RecMuTauTauPairs = cms.untracked.bool(doMuSVfit),

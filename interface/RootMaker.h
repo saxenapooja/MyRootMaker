@@ -138,6 +138,7 @@ using namespace reco;
 #define M_primvertexmaxcount 1000
 #define M_muonmaxcount 1000
 #define M_taumaxcount 1000
+#define M_tautaupairmaxcount 1000
 #define M_mutautaupairmaxcount 1000
 #define M_eltautaupairmaxcount 1000
 #define M_electronmaxcount 1000
@@ -173,6 +174,7 @@ class RootMaker : public edm::EDAnalyzer{
   bool AddPhotons(const edm::Event& iEvent);
   bool AddAllConversions(const edm::Event& iEvent);
   int AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  bool AddTauTauPairs(const edm::Event& iEvent);
   bool AddMuTauTauPairs(const edm::Event& iEvent);
   bool AddElTauTauPairs(const edm::Event& iEvent);
   bool AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -221,6 +223,7 @@ class RootMaker : public edm::EDAnalyzer{
   bool crecsuperclusterhit;
   bool crecmuon;
   bool crectau;
+  bool crectautaupairs;
   bool crecmutautaupairs;
   bool creceltautaupairs;
   bool crecelectron;
@@ -818,6 +821,23 @@ class RootMaker : public edm::EDAnalyzer{
   Int_t tau_signalPFGammaCands_size[M_taumaxcount];
   string tau_genTaudecayMode[M_taumaxcount];
 
+  UInt_t tautaupair_count;
+  Float_t tautaupair_leg1_px[M_tautaupairmaxcount];
+  Float_t tautaupair_leg1_py[M_tautaupairmaxcount];
+  Float_t tautaupair_leg1_pz[M_tautaupairmaxcount];
+  Float_t tautaupair_leg1_energy[M_tautaupairmaxcount];
+  Float_t tautaupair_leg2_px[M_tautaupairmaxcount];
+  Float_t tautaupair_leg2_py[M_tautaupairmaxcount];
+  Float_t tautaupair_leg2_pz[M_tautaupairmaxcount];
+  Float_t tautaupair_leg2_energy[M_tautaupairmaxcount];
+  Bool_t tautaupair_svfit_int_valid[M_tautaupairmaxcount];
+  Float_t tautaupair_svfit_mass_int[M_tautaupairmaxcount];
+  Float_t tautaupair_svfit_mass_int_err_up[M_tautaupairmaxcount];
+  Float_t tautaupair_svfit_mass_int_err_down[M_tautaupairmaxcount];
+  Float_t tautaupair_dca2d[M_tautaupairmaxcount];
+  Float_t tautaupair_dca2d_err[M_tautaupairmaxcount];
+  Float_t tautaupair_dca3d[M_tautaupairmaxcount];
+  Float_t tautaupair_dca3d_err[M_tautaupairmaxcount];
 
   UInt_t mutautaupair_count;
   Float_t mutautaupair_leg1_px[M_mutautaupairmaxcount];

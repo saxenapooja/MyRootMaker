@@ -1,0 +1,10 @@
+-USER.user_remote_dir=HToTauTau/TauTauFullyHad/Analysis/17Sep2014/DYJetsToLL_M-50_MC_v1
+-CMSSW.total_number_of_events=8000000
+-USER.ui_working_dir=DYJetsToLL_M-50_MC_v1
+-USER.storage_element=T2_DE_DESY
+-CMSSW.datasetpath=/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
+-jobtype=cmssw
+-CMSSW.events_per_job=10000
+-use_server=0
+-cfg=crab_ditau_mc.cfg
+-scheduler=remoteGlidein

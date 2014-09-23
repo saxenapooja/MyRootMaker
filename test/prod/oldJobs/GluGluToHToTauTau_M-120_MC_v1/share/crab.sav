@@ -1,0 +1,10 @@
+-USER.user_remote_dir=HToTauTau/TauTauFullyHad/Analysis/17Sep2014/GluGluToHToTauTau_M-120_MC_v1
+-CMSSW.total_number_of_events=-1
+-USER.ui_working_dir=GluGluToHToTauTau_M-120_MC_v1
+-USER.storage_element=T2_DE_DESY
+-CMSSW.datasetpath=/GluGluToHToTauTau_M-120_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM
+-jobtype=cmssw
+-CMSSW.events_per_job=6000
+-use_server=0
+-cfg=crab_ditau_mc.cfg
+-scheduler=remoteGlidein

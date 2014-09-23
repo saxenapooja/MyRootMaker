@@ -1,0 +1,33 @@
+Steps to run 
+-----------
+source setup.sh help
+source setup.sh makelib  -- for compiling and making the head liberarirs
+source setup.sh skim     -- for skiming
+souurce setup.sh main    -- final selection
+
+
+April 22, Tuesday::VBF_result_reproduce
+---------------------------------------
+a.) sample used: /VBF_HToTauTau_M-125_8TeV-powheg-pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM 
+no of events: 998836
+
+b.) Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorkingSummer2013
+
+c.) tautau results: /afs/cern.ch/user/a/arapyan/public/Summer13Sync/SyncMay27/ntuples/htt_vbf_tt_sm_125_select.root
+	6584 events after full selection
+d.) 23/24 jobs are done, trying to check the no of events afte full selection.
+
+Run: 1 -> -2.60483e+33, Events: 48268824/560694=1.2257e+06  sum: -2.60483e+33, Events: 48268824/560694=1.2257e+06
+1:1 - 1:3334, HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v2(1)
+529393 Events are added.
+
+998836 => 
+529393 =>
+1225700
+
+Getting -> 8272 
+To Do
+------
+- need to fix the cut flow
+- if the muonveto/ ele_veto is being called always even if the tau is not isolated, it has to be passed all time and should end up givng more numbers. However, it is not the case. Strange.
+- Need to understand how the printing of the cut_flow is being manintained.
