@@ -1,0 +1,5 @@
+how to Run
+----------
+root -l 
+[root] .L VertexAnalyzer.C++
+[root] VertexAnalysisAll

@@ -1,0 +1,486 @@
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
+
+#include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/RefProd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include <memory>
+#include "TFile.h"
+#include "TTree.h"
+#include <string>
+#include <utility>
+#include <map>
+#include "TMath.h"
+#include <iostream>
+
+using namespace reco;
+using namespace edm;
+using namespace std;
+
+struct DiTauInfo 
+{ 
+  DiTauInfo(){}; 
+  int diTauCharge_; 
+  double sumPt_; 
+  int index1_;
+  int index2_;
+}; 
+
+struct SortDiTauPairs 
+{ 
+  bool operator() (const DiTauInfo t1, const DiTauInfo t2) 
+  { 
+    // 1st criterion: OS 
+    if ( t1.diTauCharge_ < t2.diTauCharge_ ) return true; 
+    if ( t1.diTauCharge_ > t2.diTauCharge_ ) return false; 
+    // 2nd criterion: sumPt of diTau pair 
+    return (t1.sumPt_ > t2.sumPt_);  
+  } 
+}; 
+
+class VertexAnalyzer : public edm::EDAnalyzer {
+public:
+
+  struct more {
+    bool operator() (const double& lhs, const double& rhs) const
+    {return lhs>rhs;}
+  };
+
+  explicit VertexAnalyzer(const edm::ParameterSet& iConfig);
+  ~VertexAnalyzer();
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void beginJob() ;
+  void endJob() ;
+  
+private:
+  edm::InputTag TauTag_;
+  edm::InputTag PVTag_;
+  edm::InputTag beamSpotTag_;
+  edm::InputTag TrackCollectionTag_;
+  bool useBeamSpot_;
+
+  TTree* tree_;
+
+  unsigned long run_,event_,lumi_;
+  int index_;
+  
+  std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* diTauLegsP4_; 
+  //std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* genDiTauLegsP4_; 
+  //std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* genTausP4_;
+  std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >* diTauLegsLchP4_;
+  int tightestHPSDB3HWPLeg1_;
+  int tightestHPSDB3HWPLeg2_;
+  float hpsDB3HLeg1_;
+  float hpsDB3HLeg2_;
+  float diTauCharge_;
+  float chargeLeg1_;
+  int decayModeLeg1_;
+  int decayModeLeg2_;
+
+  float VtxX_;
+  float VtxY_;
+  float VtxZ_;
+  float VtxXErr_;
+  float VtxYErr_;
+  float VtxZErr_;
+  
+  float ReFitVtxX_;
+  float ReFitVtxY_;
+  float ReFitVtxZ_;
+  float ReFitVtxXErr_;
+  float ReFitVtxYErr_;
+  float ReFitVtxZErr_;
+  int   ReFitVtxRho_;
+  float ReFitVtxNdof_;
+
+  std::vector< ROOT::Math::XYZPointD >* diTauLegsPCA_;
+  float dxyLeg1_;
+  float dxyLeg2_;
+  float dxyLeg1Err_;
+  float dxyLeg2Err_;
+  float dzLeg1_;
+  float dzLeg2_;
+  float dzLeg1Err_;
+  float dzLeg2Err_;
+
+};
+
+VertexAnalyzer::VertexAnalyzer(const edm::ParameterSet& iConfig):
+  TauTag_(iConfig.getParameter<edm::InputTag>("tauTag")),
+  PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
+  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
+  TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
+  useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
+{
+
+}
+
+VertexAnalyzer::~VertexAnalyzer(){
+  delete diTauLegsP4_; //delete genDiTauLegsP4_; delete genTausP4_;
+  delete diTauLegsPCA_; delete diTauLegsLchP4_;
+}
+
+void VertexAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+
+  run_   = iEvent.id().run();
+  event_ = iEvent.id().event();
+  lumi_  = iEvent.luminosityBlock();
+  
+  // Obtain Collections
+  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+  
+  edm::Handle<pat::TauCollection> taus;
+  iEvent.getByLabel(TauTag_,taus);
+  //const pat::TauCollection* taus = taus.product();
+
+  edm::Handle<reco::VertexCollection > PV;
+  iEvent.getByLabel(PVTag_,PV);
+  const reco::VertexCollection* vertexes = PV.product();
+
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(beamSpotTag_,beamSpot);
+
+  edm::Handle<reco::TrackCollection> trackCollection;
+  iEvent.getByLabel(TrackCollectionTag_,trackCollection);
+
+  std::vector<DiTauInfo>sortDiTauInfos; sortDiTauInfos.clear();
+
+  //Apply selection to select tau pair
+  if(taus->size()<2) return;
+  for(pat::TauCollection::size_type itau = 0; itau < taus->size(); itau++) {
+    pat::Tau aTauLeg1( (*taus)[itau] );
+    
+    if(aTauLeg1.pt() < 20.)continue;
+    if(aTauLeg1.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")<0.5) continue;
+    if(aTauLeg1.tauID("againstMuonTight")<0.5) continue;
+    if(aTauLeg1.tauID("againstElectronTight")<0.5) continue;
+    
+    for(pat::TauCollection::size_type jtau = itau+1; jtau < taus->size(); jtau++) {
+      if(jtau<=itau) continue;
+      pat::Tau aTauLeg2( (*taus)[jtau] );
+      
+      if(aTauLeg2.pt() < 20.)continue;
+      if(aTauLeg2.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")<0.5) continue;
+      if(aTauLeg2.tauID("againstMuonTight")<0.5) continue;
+      if(aTauLeg2.tauID("againstElectronTight")<0.5) continue;
+      
+      float sumpt = aTauLeg1.pt() + aTauLeg2.pt();
+      float pairCharge = aTauLeg1.charge()*aTauLeg2.charge();
+
+      DiTauInfo sortDiTauInfo; 
+      sortDiTauInfo.index1_ = itau; 
+      sortDiTauInfo.index2_ = jtau;
+      sortDiTauInfo.sumPt_ = sumpt;
+      sortDiTauInfo.diTauCharge_ = pairCharge; 
+      sortDiTauInfos.push_back(sortDiTauInfo); 
+    }
+  }
+
+  //sort diTaus, first OS and then according to sumPt  
+  std::sort(sortDiTauInfos.begin(), sortDiTauInfos.end(), SortDiTauPairs()); 
+
+  //Intialize variables
+  VtxX_ = -99.;
+  VtxY_ = -99.;
+  VtxZ_ = -99.;
+  VtxXErr_ = -99.;
+  VtxYErr_ = -99.;
+  VtxZErr_ = -99.;
+
+  // Get Primary vertex
+  reco::Vertex thePV;
+  bool vtxFound = false;
+  if(vertexes->size() > 0){
+    for(size_t ivtx = 0; ivtx < vertexes->size(); ivtx++){
+      reco::Vertex theVtx = vertexes->at(ivtx);
+      if(!theVtx.isValid()) continue;
+      if(theVtx.ndof() < 4)continue;
+      if(theVtx.z() < -24 || theVtx.z() > 24)continue;
+      if(theVtx.position().Rho() > 2.)continue;
+      thePV=vertexes->at(ivtx);
+      vtxFound=true;
+      break;
+      }
+    }
+  
+  if(!vtxFound) return;
+  
+  VtxX_ = thePV.x();
+  VtxY_ = thePV.y();
+  VtxZ_ = thePV.z();
+  VtxXErr_ = thePV.xError();
+  VtxYErr_ = thePV.yError();
+  VtxZErr_ = thePV.zError();
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  //Loop over tau-pairs and and re-fit the vertex
+  int diTauCounter = -1;
+  for(std::vector<DiTauInfo>::iterator iter = sortDiTauInfos.begin();  iter != sortDiTauInfos.end() ; iter++){ 
+    diTauCounter++;
+
+    index_   = diTauCounter;
+
+    ReFitVtxX_ = -99.;
+    ReFitVtxY_ = -99.;
+    ReFitVtxZ_ = -99.;
+    ReFitVtxXErr_ = -99.;
+    ReFitVtxYErr_ = -99.;
+    ReFitVtxZErr_ = -99.;
+
+    dxyLeg1_ = -99.;
+    dxyLeg2_ = -99.;
+    dxyLeg1Err_ = -99.;
+    dxyLeg2Err_ = -99.;
+    dzLeg1_ = -99.;
+    dzLeg2_ = -99.;
+    dzLeg1Err_ = -99.;
+    dzLeg2Err_ = -99.;
+
+    diTauLegsP4_->clear();
+    diTauLegsLchP4_->clear();
+    diTauLegsPCA_->clear();
+
+    pat::Tau aTauLeg1( (*taus)[iter->index1_] );
+    pat::Tau aTauLeg2( (*taus)[iter->index2_] );
+
+    tightestHPSDB3HWPLeg1_ = -1;
+    if(aTauLeg1.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")>0.5)  tightestHPSDB3HWPLeg1_=0; 
+    if(aTauLeg1.tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits")>0.5) tightestHPSDB3HWPLeg1_=1; 
+    if(aTauLeg1.tauID("byTightCombinedIsolationDeltaBetaCorr3Hits")>0.5)  tightestHPSDB3HWPLeg1_=2;
+    hpsDB3HLeg1_  = aTauLeg1.tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+    tightestHPSDB3HWPLeg2_ = -1;
+    if(aTauLeg2.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")>0.5)  tightestHPSDB3HWPLeg2_=0;
+    if(aTauLeg2.tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits")>0.5) tightestHPSDB3HWPLeg2_=1;
+    if(aTauLeg2.tauID("byTightCombinedIsolationDeltaBetaCorr3Hits")>0.5)  tightestHPSDB3HWPLeg2_=2;
+    hpsDB3HLeg2_  = aTauLeg2.tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+    diTauCharge_ = aTauLeg1.charge()+aTauLeg2.charge();
+    chargeLeg1_ = aTauLeg1.charge();
+    
+    if((aTauLeg1.signalPFChargedHadrCands()).size()==1 && (aTauLeg1.signalPFGammaCands()).size()==0) decayModeLeg1_ = 0; 
+    else if((aTauLeg1.signalPFChargedHadrCands()).size()==1 && (aTauLeg1.signalPFGammaCands()).size()>0)  decayModeLeg1_ = 1; 
+    else if((aTauLeg1.signalPFChargedHadrCands()).size()==2 && (aTauLeg1.signalPFGammaCands()).size()==0)  decayModeLeg1_ = 2; 
+    else if((aTauLeg1.signalPFChargedHadrCands()).size()==2 && (aTauLeg1.signalPFGammaCands()).size()>0)  decayModeLeg1_ = 3; 
+    else if((aTauLeg1.signalPFChargedHadrCands()).size()==3) decayModeLeg1_ = 4; 
+    else  decayModeLeg1_ = -99;
+
+    if((aTauLeg2.signalPFChargedHadrCands()).size()==1 && (aTauLeg2.signalPFGammaCands()).size()==0) decayModeLeg2_ = 0;
+    else if((aTauLeg2.signalPFChargedHadrCands()).size()==1 && (aTauLeg2.signalPFGammaCands()).size()>0)  decayModeLeg2_ = 1;
+    else if((aTauLeg2.signalPFChargedHadrCands()).size()==2 && (aTauLeg2.signalPFGammaCands()).size()==0)  decayModeLeg2_ = 2;
+    else if((aTauLeg2.signalPFChargedHadrCands()).size()==2 && (aTauLeg2.signalPFGammaCands()).size()>0)  decayModeLeg2_ = 3;
+    else if((aTauLeg2.signalPFChargedHadrCands()).size()==3) decayModeLeg2_ = 4;
+    else  decayModeLeg2_ = -99;
+    
+    diTauLegsP4_->push_back(aTauLeg1.p4());
+    diTauLegsP4_->push_back(aTauLeg2.p4());
+
+    if(aTauLeg1.leadPFChargedHadrCand().isNonnull())diTauLegsLchP4_->push_back(aTauLeg1.leadPFChargedHadrCand()->p4());
+    if(aTauLeg2.leadPFChargedHadrCand().isNonnull())diTauLegsLchP4_->push_back(aTauLeg2.leadPFChargedHadrCand()->p4());
+
+    //Get signal tracks from Taus
+    std::vector<reco::TrackBaseRef> SignalTracks;
+
+    // Get tracks form PFTau daugthers of tauLeg1
+    const reco::PFCandidateRefVector & candsLeg1 = aTauLeg1.signalPFChargedHadrCands(); 
+    for (reco::PFCandidateRefVector::const_iterator iter = candsLeg1.begin(); iter!=candsLeg1.end(); iter++){
+      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef((*iter)->trackRef()));
+      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef(((*iter)->gsfTrackRef())));}
+    }
+
+    // Get tracks form PFTau daugthers of tauLeg2
+    const reco::PFCandidateRefVector & candsLeg2 = aTauLeg2.signalPFChargedHadrCands();
+    for (reco::PFCandidateRefVector::const_iterator iter = candsLeg2.begin(); iter!=candsLeg2.end(); iter++){
+      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef((*iter)->trackRef()));
+      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef(((*iter)->gsfTrackRef())));}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Get Non-Tau tracks 
+    reco::TrackCollection nonTauTracks;
+    if (trackCollection.isValid()) {
+      // remove tau tracks and only tracks associated with the vertex
+      unsigned int idx = 0;
+      for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
+	reco::TrackRef tmpRef(trackCollection, idx);
+	reco::TrackRef tmpRefForBase=tmpRef;
+	bool isSigTrk = false;
+	bool fromVertex=false;
+	for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
+	  if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
+	}
+	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
+	  if(thePV.trackWeight(*vtxTrkRef)>0 ){
+	    if((*vtxTrkRef)==reco::TrackBaseRef(tmpRefForBase)){fromVertex=true; break;}
+	  }
+	}
+	if (!isSigTrk && fromVertex) nonTauTracks.push_back(*iTrk);
+      }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    if(nonTauTracks.size() >= 2){
+      // Refit the vertex
+      TransientVertex transVtx;
+      std::vector<reco::TransientTrack> transTracks;
+      for (reco::TrackCollection::iterator iter=nonTauTracks.begin(); iter!=nonTauTracks.end(); ++iter){
+	transTracks.push_back(transTrackBuilder->build(*iter));
+      }
+      bool FitOk(true);
+      AdaptiveVertexFitter avf;
+      avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+      try{
+	if(!useBeamSpot_){transVtx = avf.vertex(transTracks);}
+	else{transVtx = avf.vertex(transTracks,*beamSpot);}
+      }catch(...){
+	FitOk=false;
+      }
+
+      reco::Vertex primaryVertexReFit;
+      if(FitOk){
+	primaryVertexReFit=transVtx;
+	
+	ReFitVtxX_ = primaryVertexReFit.x();
+	ReFitVtxY_ = primaryVertexReFit.y();
+	ReFitVtxZ_ = primaryVertexReFit.z();
+	ReFitVtxXErr_ = primaryVertexReFit.xError();
+	ReFitVtxYErr_ = primaryVertexReFit.yError();
+	ReFitVtxZErr_ = primaryVertexReFit.zError();
+	ReFitVtxRho_ = primaryVertexReFit.position().Rho();
+	ReFitVtxNdof_ = primaryVertexReFit.ndof();
+	
+	//Compute IP vectors for the signal tracks
+	ROOT::Math::XYZPointD pocaLeg1(0,0,0);
+	if(aTauLeg1.leadPFChargedHadrCand().isNonnull()){
+	  if(aTauLeg1.leadPFChargedHadrCand()->trackRef().isNonnull()){
+	    reco::TransientTrack transTrk=transTrackBuilder->build(aTauLeg1.leadPFChargedHadrCand()->trackRef());
+	    GlobalPoint pv(primaryVertexReFit.position().x(),primaryVertexReFit.position().y(),primaryVertexReFit.position().z());
+	    float dxy=transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().transverseImpactParameter();
+	    float dz=transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().longitudinalImpactParameter();
+	    float dxy_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().transverseImpactParameterError();
+	    float dz_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().longitudinalImpactParameterError();
+	    GlobalPoint pos=transTrk.trajectoryStateClosestToPoint(pv).position();
+	    pocaLeg1=reco::Vertex::Point(pos.x(),pos.y(),pos.z());
+	    
+	    dxyLeg1_ = dxy;
+	    dxyLeg1Err_ = dxy_err;
+	    dzLeg1_ = dz;
+	    dzLeg1Err_ = dz_err;
+	    diTauLegsPCA_->push_back(pocaLeg1);
+	  }
+	}
+
+	ROOT::Math::XYZPointD pocaLeg2(0,0,0);
+	if(aTauLeg2.leadPFChargedHadrCand().isNonnull()){
+	  if(aTauLeg2.leadPFChargedHadrCand()->trackRef().isNonnull()){
+	    reco::TransientTrack transTrk=transTrackBuilder->build(aTauLeg2.leadPFChargedHadrCand()->trackRef());
+	    GlobalPoint pv(primaryVertexReFit.position().x(),primaryVertexReFit.position().y(),primaryVertexReFit.position().z());
+	    float dxy=-transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().transverseImpactParameter();
+	    float dz=transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().longitudinalImpactParameter();
+	    float dxy_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().transverseImpactParameterError();
+	    float dz_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().longitudinalImpactParameterError();
+	    GlobalPoint pos=transTrk.trajectoryStateClosestToPoint(pv).position();
+	    pocaLeg2=reco::Vertex::Point(pos.x(),pos.y(),pos.z());
+	    
+	    dxyLeg2_ = dxy;
+	    dxyLeg2Err_ = dxy_err;
+	    dzLeg2_ = dz;
+	    dzLeg2Err_ = dz_err;
+	    diTauLegsPCA_->push_back(pocaLeg2);
+	  }
+
+	}
+      }
+    }
+
+    tree_->Fill();
+  }
+}
+
+void VertexAnalyzer::beginJob()
+{
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("tree","ditau tree");
+
+  diTauLegsP4_    = new std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >();
+  //genDiTauLegsP4_ = new std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >();
+  //genTausP4_      = new std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >();
+
+  tree_->Branch("diTauLegsP4","std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&diTauLegsP4_);
+  //tree_->Branch("genDiTauLegsP4","std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&genDiTauLegsP4_);
+  //tree_->Branch("genTausP4","std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&genTausP4_);
+  tree_->Branch("diTauLegsLchP4","std::vector< ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >",&diTauLegsLchP4_);
+
+  tree_->Branch("run",&run_,"run/l");
+  tree_->Branch("event",&event_,"event/l");
+  tree_->Branch("lumi",&lumi_,"lumi/l");
+  tree_->Branch("VtxZ",&VtxZ_,"VtxZ/F");
+  tree_->Branch("VtxX",&VtxX_,"VtxX/F");
+  tree_->Branch("VtxY",&VtxY_,"VtxY/F");
+  tree_->Branch("VtxZErr",&VtxZErr_,"VtxZErr/F");
+  tree_->Branch("VtxXErr",&VtxXErr_,"VtxXErr/F");
+  tree_->Branch("VtxYErr",&VtxYErr_,"VtxYErr/F");
+  tree_->Branch("ReFitVtxZ",&ReFitVtxZ_,"ReFitVtxZ/F");
+  tree_->Branch("ReFitVtxX",&ReFitVtxX_,"ReFitVtxX/F");
+  tree_->Branch("ReFitVtxY",&ReFitVtxY_,"ReFitVtxY/F");
+  tree_->Branch("ReFitVtxZErr",&ReFitVtxZErr_,"ReFitVtxZErr/F");
+  tree_->Branch("ReFitVtxXErr",&ReFitVtxXErr_,"ReFitVtxXErr/F");
+  tree_->Branch("ReFitVtxYErr",&ReFitVtxYErr_,"ReFitVtxYErr/F");
+  tree_->Branch("ReFitVtxNdof",&ReFitVtxNdof_,"ReFitVtxNdof/I");
+  tree_->Branch("ReFitVtxRho",&ReFitVtxRho_,"ReFitVtxRho/F");
+
+  tree_->Branch("diTauLegsPCA", "std::vector<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> >", &diTauLegsPCA_);
+  tree_->Branch("dxyLeg1",&dxyLeg1_, "dxyLeg1/F");
+  tree_->Branch("dxyLeg2",&dxyLeg2_, "dxyLeg2/F");
+  tree_->Branch("dxyLeg1Err",&dxyLeg1Err_, "dxyLeg1Err/F");
+  tree_->Branch("dxyLeg2Err",&dxyLeg2Err_, "dxyLeg2Err/F");
+  tree_->Branch("dzLeg1",&dzLeg1_, "dzLeg1/F");
+  tree_->Branch("dzLeg2",&dzLeg2_, "dzLeg2/F");
+  tree_->Branch("dzLeg1Err",&dzLeg1Err_, "dzLeg1Err/F");
+  tree_->Branch("dzLeg2Err",&dzLeg2Err_, "dzLeg2Err/F");
+
+  tree_->Branch("decayModeLeg1",&decayModeLeg1_,"decayModeLeg1/I");
+  tree_->Branch("decayModeLeg2",&decayModeLeg2_,"decayModeLeg2/I");
+  tree_->Branch("diTauCharge",&diTauCharge_,"diTauCharge/F");
+  tree_->Branch("chargeLeg1",&chargeLeg1_,"chargeLeg1/F");
+
+  tree_->Branch("tightestHPSDB3HWPLeg1",&tightestHPSDB3HWPLeg1_,"tightestHPSDB3HWPLeg1/I");
+  tree_->Branch("tightestHPSDB3HWPLeg2",&tightestHPSDB3HWPLeg2_,"tightestHPSDB3HWPLeg2/I");
+  tree_->Branch("hpsDB3HLeg1",&hpsDB3HLeg1_,"hpsDB3HLeg1/F");
+  tree_->Branch("hpsDB3HLeg2",&hpsDB3HLeg2_,"hpsDB3HLeg2/F");
+  tree_->Branch("index",&index_,"index/I");
+  
+}
+
+void VertexAnalyzer::endJob(){}
+
+DEFINE_FWK_MODULE(VertexAnalyzer);

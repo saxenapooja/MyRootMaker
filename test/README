@@ -1,0 +1,20 @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Date: 18 th April 2014
+Simple README to explain the usage of the workspace
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+How to Submit the jobs
+---------------------
+source $SETUP                // initialize the enviroment
+source $SETUP renewgrid      // if need to initialize the grid
+source $SETUP renewgrid      // if need to use the srm based command
+$GRID/go.py gc_*.cfg         // job submittion
+$GRID/go.py gc_*.cfg -Gc     // monitor job progrees and resubmittion
+$GRID/go.py gc_*.cfg -d all  // kill 'all' jobs
+$GRID/go.py gc_*.cfg -s      // checking, w/o submitting the jobs
+
+
+Crab
+---
+source /cvmfs/cms.cern.ch/crab/crab_new.sh
