@@ -17,7 +17,8 @@ doSVFit = False
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1 #0000
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -66,7 +67,7 @@ else:
 	process.load('EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi')
 	from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso
 	process.elIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
-	
+
 # Produce rho for PU correction
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('RecoJets.Configuration.RecoPFJets_cff')
@@ -139,16 +140,30 @@ process.patMETsPFType1     = process.patMETs.clone(
 	genMETSource       = cms.InputTag('genMetTrue'))
 
 # Enable MVA MET
+MVATightId = "((pt>20  && abs(superCluster.eta)>=0.0 && abs(superCluster.eta)<0.8 && electronID('mvaNonTrigV0')>0.925) ||" + \
+	     "(pt>20  && abs(superCluster.eta)>=0.8 && abs(superCluster.eta)<1.479 && electronID('mvaNonTrigV0')>0.975) ||" + \
+	     "(pt>20  && abs(superCluster.eta)>=1.479 && abs(superCluster.eta)<2.5 && electronID('mvaNonTrigV0')>0.985))"
 process.isolatedPatElectrons              = process.cleanPatElectrons.clone()
-process.isolatedPatElectrons.preselection = cms.string('pt > 20 & abs(eta) < 2.1 & electronID("mvaNonTrigV0") > 0.905 &  (chargedHadronIso() + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1')
+process.isolatedPatElectrons.preselection = cms.string("pt > 20 && abs(eta) < 2.1 && "+MVATightId+" &&  (chargedHadronIso() + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1")
+#process.isolatedPatElectrons.preselection = cms.string("pt > 20 && abs(eta) < 2.1 && "+MVATightId+" &&  (userIsolation(pat::PfChargedAllIso) + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1")
 process.isolatedPatElectrons.finalCut     = cms.string('')
 process.isolatedPatMuons                  = process.cleanPatMuons.clone()
-process.isolatedPatMuons.preselection     = cms.string('pt > 20 & abs(eta) < 2.1 & isGlobalMuon() &  (chargedHadronIso() + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1')
+#process.isolatedPatMuons.preselection     = cms.string('pt > 20 & abs(eta) < 2.1 & isGlobalMuon() &  (chargedHadronIso() + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1')
+process.isolatedPatMuons.preselection     = cms.string("pt > 20 && abs(eta) < 2.1 "+ 
+						       " && isGlobalMuon && isPFMuon"+
+						       " && globalTrack.isNonnull "+
+						       " && globalTrack.normalizedChi2<10"+
+						       " && globalTrack.hitPattern.numberOfValidMuonHits>0"+
+						       " && numberOfMatchedStations>1"+
+						       " && innerTrack.hitPattern.numberOfValidPixelHits>0"+
+						       " && track.hitPattern.trackerLayersWithMeasurement > 5"+
+						       " && (chargedHadronIso() + max(0.0, neutralHadronIso() + photonIso() - 0.5 * puChargedHadronIso()))/pt < 0.1"
+						       )
 process.isolatedPatMuons.finalCut         = cms.string('')
 process.isolatedPatTaus                   = process.cleanPatTaus.clone()
 # Don't use the new discriminators here so that we have the same definition as the others
 #process.isolatedPatTaus.preselection = cms.string('pt > 20 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & (tauID("againstMuonLoose") > 0.5 || tauID("againstMuonLoose2")) & (tauID("againstElectronLoose") > 0.5 || tauID("againstElectronMVA") > 0.5 || tauID("againstElectronLooseMVA3") > 0.5) & (tauID("byLooseCombinedIsolationDeltaBetaCorr") > 0.5 || tauID("byLooseIsolationMVA2") > 0.5 || tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5)')
-process.isolatedPatTaus.preselection      = cms.string('pt > 20 && abs(eta) < 2.3 && tauID("decayModeFinding") > 0.5 && tauID("againstMuonLoose") > 0.5 && tauID("againstElectronLoose") > 0.5 && tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5')
+process.isolatedPatTaus.preselection      = cms.string("pt > 20 && abs(eta) < 2.3 && ( tauID('againstMuonLoose3')>0.5 || tauID('againstMuonLooseMVA')>0.5 ) && ( tauID('againstElectronLoose')>0.5 || tauID('againstElectronVLooseMVA5')>0.5 ) && ( tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') > 0.5 || tauID('byLooseIsolationMVA3newDMwLT') > 0.5 || tauID('byLooseIsolationMVA3oldDMwLT') > 0.5 )")
 process.isolatedPatTaus.finalCut          = cms.string('')
 
 if isData:
@@ -530,8 +545,8 @@ process.TFileService = cms.Service("TFileService",
 process.tau_step = cms.Path(process.PFTau)
 
 # PU Jet ID
-process.pileupJetIdProducer.residualsTxt = 'MyRootMaker/MyRootMaker/test/RootTree.py'
-process.pileupJetIdProducerChs.residualsTxt = 'MyRootMaker/MyRootMaker/test/RootTree.py'
+process.pileupJetIdProducer.residualsTxt = 'RecoJets/JetProducers/data/dummy.txt'
+process.pileupJetIdProducerChs.residualsTxt = 'RecoJets/JetProducers/data/dummy.txt'
 process.pileupJetIdProducer.jets = cms.InputTag("ak5PFJets")
 process.pileupJetIdProducer.applyJec = cms.bool(True)
 process.pileupJetIdProducer.inputIsCorrected = cms.bool(False)
