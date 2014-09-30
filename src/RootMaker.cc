@@ -45,997 +45,6 @@ static const unsigned int SKIM_EMU        = (1 << 6);     //64 : e+mu
 static const unsigned int SKIM_TAUTAU     = (1 << 7);     //128: tau+tau
 
 
-#ifndef RootMaker_h
-#define RootMaker_h
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include <string>
-#include <map>
-#include <vector>
-#include <cstdlib>
-#include <algorithm>
-
-#include <Math/Vector3D.h>
-#include "Math/LorentzVector.h"
-#include "Math/Point3D.h"
-
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "DataFormats/Luminosity/interface/LumiSummary.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
-//#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-//#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-//#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-//#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h" 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
-#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetCollection.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/METReco/interface/GenMET.h"
-#include "DataFormats/METReco/interface/GenMETFwd.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
-//#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "RecoEgamma/EgammaTools/interface/ConversionInfo.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TMath.h"
-#include "TTree.h"
-#include "TLorentzVector.h"
-#include <Math/Functions.h>
-#include <Math/SVector.h>
-#include <Math/SMatrix.h>
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "TauAnalysis/CandidateTools/interface/NSVfitStandaloneAlgorithm.h"
-
-#include "Muon/MuonAnalysisTools/interface/MuonMVAEstimator.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
-
-using namespace std;
-using namespace reco;
-
-#define M_trackmaxcount 1000
-#define M_superclustermaxcount 1000
-#define M_superclustermembermaxcount 1000
-#define M_superclusterhitmaxcount 5000
-#define M_primvertexmaxcount 1000
-#define M_muonmaxcount 1000
-#define M_taumaxcount 1000
-#define M_tautaupairmaxcount 1000
-#define M_mutautaupairmaxcount 1000
-#define M_eltautaupairmaxcount 1000
-#define M_electronmaxcount 1000
-#define M_photonmaxcount 1000
-#define M_conversionmaxcount 1000
-#define M_jetmaxcount 1000
-#define M_musecverticesmaxcount 1000
-#define M_secverticesmaxcount 10000
-#define M_genallparticlesmaxcount 10000
-#define M_genparticlesmaxcount 1000
-#define M_genmotherdaughtermaxcount 50000
-#define M_btagmax 6
-#define M_svmax 5
-typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> Point3D;
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
-
-bool doDebug = false;
-class RootMaker : public edm::EDAnalyzer{ 
- public:
-  explicit RootMaker( const edm::ParameterSet& iConfig );
-  ~RootMaker();
-
- private:
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup);
-  virtual void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup );
-
-  bool AddTracks(const edm::Event& iEvent);
-  int AddElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  int AddMuons(const edm::Event& iEvent);
-  bool AddPhotons(const edm::Event& iEvent);
-  bool AddAllConversions(const edm::Event& iEvent);
-  int AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool AddTauTauPairs(const edm::Event& iEvent);
-  bool AddMuTauTauPairs(const edm::Event& iEvent);
-  bool AddElTauTauPairs(const edm::Event& iEvent);
-  bool AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool AddAK5PFJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool AddVertices(const edm::Event& iEvent);
-  bool AddMuVertices(const edm::Event& iEvent);
-  bool AddConvPhotons(const edm::Event& iEvent);
-  bool AddCaloPhotons(const edm::Event& iEvent);
-  bool foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB);
-  
-  UInt_t GenParticleInfo(const GenParticle* particle);
-  UInt_t GetTriggerMatch(const LeafCandidate& particle, const vector<std::pair<string,string> >& triggernames);
-  bool GetL1ExtraTriggerMatch(const l1extra::L1JetParticleCollection* l1jets,  const l1extra::L1JetParticleCollection* l1taus, const LeafCandidate& leg2);
-  UInt_t FindGenParticle(const Candidate* particle);
-  Int_t HasAnyMother(const GenParticle* particle, int id);
-  math::XYZPoint PositionOnECalSurface(reco::TransientTrack&);
-  Int_t getSuperCluster(float e, float x, float y, float z);
-  double ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, LorentzVector met, TMatrixD cov);
-  
-  struct DCA {
-    float dca2d;
-    float dca2dErr;
-    float dca3d;
-    float dca3dErr;
-  };
-  DCA calculateDCA(const pat::Tau& tau1, const pat::Tau& tau2);
-
-  TTree* tree;
-  TTree* lumitree;
-  TTree* runtree;
-  TH1D*  nEvents;
-
-
-  //Variables
-  metRecCorr = new MEtRecoilCorrection(sampleName);
-  
-  HLTConfigProvider HLTConfiguration;
-  edm::Handle<edm::TriggerResults> HLTrigger;
-  edm::Handle<trigger::TriggerEvent> HLTriggerEvent;
-  //edm::Handle<l1extra::L1MuonParticleCollection> L1Muons;
-  //edm::Handle<l1extra::L1EmParticleCollection> L1Electrons;
-  //edm::Handle<l1extra::L1EmParticleCollection> L1ElectronsIso;
-  vector<std::pair<string,string> > muontriggers;
-  vector<std::pair<string,string> > electrontriggers;
-  vector<std::pair<string,string> > tautriggers;
-  vector<std::pair<string,string> > photontriggers;
-  vector<std::pair<string,string> > jettriggers;
-  vector<string> bdisclabel;
-  
-  vector<int> HLTriggerIndexSelection;
-  vector<int> tauIndexSelection;
-  vector<int> DiTauIndex;
-
-  math::XYZPoint pv_position;
-  Vertex primvertex;
-
-  MuonMVAEstimator fMuonIsoMVA;
-  MuonMVAEstimator fMuonIDMVA;
-  //EGammaMvaEleEstimator <fElectronIsoMVA;
-
-  //Data		
-  UInt_t errors;
-  UInt_t event_nr;
-  UInt_t event_luminosityblock;
-  UInt_t event_run;
-  UInt_t event_timeunix;
-  UInt_t event_timemicrosec;
-  UChar_t trigger_level1bits[8];
-  UChar_t trigger_level1[128];
-  UChar_t trigger_HLT[128];
-  
-  Float_t beamspot_x;
-  Float_t beamspot_y;
-  Float_t beamspot_z;
-  Float_t beamspot_xwidth;
-  Float_t beamspot_ywidth;
-  Float_t beamspot_zsigma;
-  Float_t beamspot_cov[6];
-
-  UInt_t track_count;
-  Float_t track_px[M_trackmaxcount];
-  Float_t track_py[M_trackmaxcount];
-  Float_t track_pz[M_trackmaxcount];
-  Float_t track_outerx[M_trackmaxcount];
-  Float_t track_outery[M_trackmaxcount];
-  Float_t track_outerz[M_trackmaxcount];
-  Float_t track_closestpointx[M_trackmaxcount];
-  Float_t track_closestpointy[M_trackmaxcount];
-  Float_t track_closestpointz[M_trackmaxcount];
-  Float_t track_chi2[M_trackmaxcount];
-  Float_t track_ndof[M_trackmaxcount];
-  Float_t track_dxy[M_trackmaxcount];
-  Float_t track_dxyerr[M_trackmaxcount];
-  Float_t track_dz[M_trackmaxcount];
-  Float_t track_dzerr[M_trackmaxcount];
-  Float_t track_dedxharmonic2[M_trackmaxcount];
-  Int_t track_charge[M_trackmaxcount];
-  UChar_t track_nhits[M_trackmaxcount];
-  UChar_t track_nmissinghits[M_trackmaxcount];
-  UChar_t track_npixelhits[M_trackmaxcount];
-  UChar_t track_npixellayers[M_trackmaxcount];
-  UChar_t track_nstriplayers[M_trackmaxcount];
-  
-  UInt_t  primvertex_count;
-  Float_t primvertex_x;
-  Float_t primvertex_y;
-  Float_t primvertex_z;
-  Float_t primvertex_chi2;
-  Float_t primvertex_ndof;
-  Float_t primvertex_ptq;
-  Int_t   primvertex_ntracks;
-  Float_t primvertex_cov[6];
-  
-  //newly added fro RefitVertex
-  Float_t ditau_VtxX;
-  Float_t ditau_VtxY;
-  Float_t ditau_VtxZ;
-  Float_t ditau_VtxXErr;
-  Float_t ditau_VtxYErr;
-  Float_t ditau_VtxZErr;
-
-  UInt_t ditau_Index;
-  UInt_t ditau_leg1_index[M_taumaxcount];
-  UInt_t ditau_leg2_index[M_taumaxcount];
-  Float_t ditau_reFitVtxX[M_taumaxcount];
-  Float_t ditau_reFitVtxY[M_taumaxcount];
-  Float_t ditau_reFitVtxZ[M_taumaxcount];
-  Float_t ditau_reFitVtxXErr[M_taumaxcount];
-  Float_t ditau_reFitVtxYErr[M_taumaxcount];
-  Float_t ditau_reFitVtxZErr[M_taumaxcount];
-  UInt_t   ditau_reFitVtxRho[M_taumaxcount];
-  Float_t ditau_reFitVtxNdof[M_taumaxcount];
-  Float_t ditau_leg1_dxy[M_taumaxcount];
-  Float_t ditau_leg1_dz[M_taumaxcount];
-  Float_t ditau_leg1_dxyErr[M_taumaxcount];
-  Float_t ditau_leg1_dzErr[M_taumaxcount];
-  Float_t ditau_leg1_dxy_OPV[M_taumaxcount];
-  Float_t ditau_leg1_dz_OPV[M_taumaxcount];
-  Float_t ditau_leg1_dxyErr_OPV[M_taumaxcount];
-  Float_t ditau_leg1_dzErr_OPV[M_taumaxcount];
-  Float_t ditau_leg1_X[M_taumaxcount];
-  Float_t ditau_leg1_Y[M_taumaxcount];
-  Float_t ditau_leg1_Z[M_taumaxcount];
-  Float_t ditau_leg1_X_OPV[M_taumaxcount];
-  Float_t ditau_leg1_Y_OPV[M_taumaxcount];
-  Float_t ditau_leg1_Z_OPV[M_taumaxcount];
-  Float_t ditau_leg2_dxy[M_taumaxcount];
-  Float_t ditau_leg2_dz[M_taumaxcount];
-  Float_t ditau_leg2_dxyErr[M_taumaxcount];
-  Float_t ditau_leg2_dzErr[M_taumaxcount];
-  Float_t ditau_leg2_dxy_OPV[M_taumaxcount];
-  Float_t ditau_leg2_dz_OPV[M_taumaxcount];
-  Float_t ditau_leg2_dxyErr_OPV[M_taumaxcount];
-  Float_t ditau_leg2_dzErr_OPV[M_taumaxcount];
-  Float_t ditau_leg2_X[M_taumaxcount];
-  Float_t ditau_leg2_Y[M_taumaxcount];
-  Float_t ditau_leg2_Z[M_taumaxcount];
-  Float_t ditau_leg2_X_OPV[M_taumaxcount];
-  Float_t ditau_leg2_Y_OPV[M_taumaxcount];
-  Float_t ditau_leg2_Z_OPV[M_taumaxcount];
-  Double_t diTauSVFitMass[M_taumaxcount];
-
-  UInt_t supercluster_count;
-  Float_t supercluster_e[M_superclustermaxcount];
-  Float_t supercluster_x[M_superclustermaxcount];
-  Float_t supercluster_y[M_superclustermaxcount];
-  Float_t supercluster_z[M_superclustermaxcount];
-  Float_t supercluster_rawe[M_superclustermaxcount];
-  Float_t supercluster_phiwidth[M_superclustermaxcount];
-  Float_t supercluster_etawidth[M_superclustermaxcount];
-  Int_t supercluster_nbasiccluster[M_superclustermaxcount];
-  Int_t supercluster_basicclusterbegin[M_superclustermaxcount];
-  Int_t supercluster_esclusterbegin[M_superclustermaxcount];
-  
-  UInt_t supercluster_basiccluster_count;
-  Float_t supercluster_basiccluster_e[M_superclustermembermaxcount];
-  Float_t supercluster_basiccluster_x[M_superclustermembermaxcount];
-  Float_t supercluster_basiccluster_y[M_superclustermembermaxcount];
-  Float_t supercluster_basiccluster_z[M_superclustermembermaxcount];
-  Int_t supercluster_basiccluster_nhit[M_superclustermembermaxcount];
-  Int_t supercluster_basiccluster_hitbegin[M_superclustermembermaxcount];
-  
-  UInt_t supercluster_basiccluster_hit_count;
-  Float_t supercluster_basiccluster_hit_e[M_superclusterhitmaxcount];
-  Float_t supercluster_basiccluster_hit_x[M_superclusterhitmaxcount];
-  Float_t supercluster_basiccluster_hit_y[M_superclusterhitmaxcount];
-  Float_t supercluster_basiccluster_hit_z[M_superclusterhitmaxcount];
-  
-  UInt_t supercluster_escluster_count;
-  Float_t supercluster_escluster_e[M_superclustermembermaxcount];
-  Float_t supercluster_escluster_x[M_superclustermembermaxcount];
-  Float_t supercluster_escluster_y[M_superclustermembermaxcount];
-  Float_t supercluster_escluster_z[M_superclustermembermaxcount];
-  Int_t supercluster_escluster_nhit[M_superclustermembermaxcount];
-  Int_t supercluster_escluster_hitbegin[M_superclustermembermaxcount];
-  
-  UInt_t supercluster_escluster_hit_count;
-  Float_t supercluster_escluster_hit_e[M_superclusterhitmaxcount];
-  Float_t supercluster_escluster_hit_x[M_superclusterhitmaxcount];
-  Float_t supercluster_escluster_hit_y[M_superclusterhitmaxcount];
-  Float_t supercluster_escluster_hit_z[M_superclusterhitmaxcount];
-  
-  UInt_t muon_count;
-  Float_t muon_px[M_muonmaxcount];
-  Float_t muon_py[M_muonmaxcount];
-  Float_t muon_pz[M_muonmaxcount];
-  Float_t muon_pterror[M_muonmaxcount];
-  Float_t muon_chi2[M_muonmaxcount];
-  Float_t muon_ndof[M_muonmaxcount];
-  UInt_t muon_nchambers[M_muonmaxcount];
-  Float_t muon_innertrack_px[M_muonmaxcount];
-  Float_t muon_innertrack_py[M_muonmaxcount];
-  Float_t muon_innertrack_pz[M_muonmaxcount];
-  Float_t muon_innertrack_outerx[M_muonmaxcount];
-  Float_t muon_innertrack_outery[M_muonmaxcount];
-  Float_t muon_innertrack_outerz[M_muonmaxcount];
-  Float_t muon_innertrack_closestpointx[M_muonmaxcount];
-  Float_t muon_innertrack_closestpointy[M_muonmaxcount];
-  Float_t muon_innertrack_closestpointz[M_muonmaxcount];
-  Float_t muon_innertrack_chi2[M_muonmaxcount];
-  Float_t muon_innertrack_ndof[M_muonmaxcount];
-  Float_t muon_innertrack_dxy[M_muonmaxcount];
-  Float_t muon_innertrack_dxyerr[M_muonmaxcount];
-  Float_t muon_innertrack_dz[M_muonmaxcount];
-  Float_t muon_innertrack_dzerr[M_muonmaxcount];
-  Float_t muon_innertrack_dedxharmonic2[M_muonmaxcount];
-  Int_t muon_innertrack_charge[M_muonmaxcount];
-  UChar_t muon_innertrack_nhits[M_muonmaxcount];
-  UChar_t muon_innertrack_nmissinghits[M_muonmaxcount];
-  UChar_t muon_innertrack_npixelhits[M_muonmaxcount];
-  UChar_t muon_innertrack_npixellayers[M_muonmaxcount];
-  UChar_t muon_innertrack_nstriplayers[M_muonmaxcount];
-  Float_t muon_outertrack_px[M_muonmaxcount];
-  Float_t muon_outertrack_py[M_muonmaxcount];
-  Float_t muon_outertrack_pz[M_muonmaxcount];
-  UChar_t muon_outertrack_hits[M_muonmaxcount];
-  UChar_t muon_outertrack_missinghits[M_muonmaxcount];
-  Float_t muon_outertrack_chi2[M_muonmaxcount];
-  Float_t muon_outertrack_ndof[M_muonmaxcount];
-  Float_t muon_isolationr3track[M_muonmaxcount];
-  Int_t muon_isolationr3ntrack[M_muonmaxcount];
-  Float_t muon_isolationr3ecal[M_muonmaxcount];
-  Float_t muon_isolationr3hcal[M_muonmaxcount];
-  Float_t muon_pfisolationr3_sumchargedhadronpt[M_muonmaxcount];
-  Float_t muon_pfisolationr3_sumchargedparticlept[M_muonmaxcount];
-  Float_t muon_pfisolationr3_sumneutralhadronet[M_muonmaxcount];
-  Float_t muon_pfisolationr3_sumphotonet[M_muonmaxcount];
-  Float_t muon_pfisolationr3_sumPUpt[M_muonmaxcount];
-  Float_t muon_pfisolationr4_sumchargedhadronpt[M_muonmaxcount];
-  Float_t muon_pfisolationr4_sumchargedparticlept[M_muonmaxcount];
-  Float_t muon_pfisolationr4_sumneutralhadronet[M_muonmaxcount];
-  Float_t muon_pfisolationr4_sumphotonet[M_muonmaxcount];
-  Float_t muon_pfisolationr4_sumPUpt[M_muonmaxcount];
-  Float_t muon_ecalenergy[M_muonmaxcount];
-  Float_t muon_hcalenergy[M_muonmaxcount];
-  Int_t muon_charge[M_muonmaxcount];
-  Int_t muon_numchambers[M_muonmaxcount];
-  Int_t muon_numchamberswithsegments[M_muonmaxcount];
-  UInt_t muon_type[M_muonmaxcount];
-  UInt_t muon_trigger[M_muonmaxcount];
-  UInt_t muon_trackermuonquality[M_muonmaxcount];
-  Float_t muon_mva_id[M_muonmaxcount];
-  Float_t muon_mva_iso[M_muonmaxcount];
-  
-  UInt_t ak5calojet_count;
-  Float_t ak5calojet_e[M_jetmaxcount];
-  Float_t ak5calojet_px[M_jetmaxcount];
-  Float_t ak5calojet_py[M_jetmaxcount];
-  Float_t ak5calojet_pz[M_jetmaxcount];
-  Float_t ak5calojet_hadronicenergy[M_jetmaxcount];
-  Float_t ak5calojet_emenergy[M_jetmaxcount];
-  Float_t ak5calojet_energycorr[M_jetmaxcount];
-  Float_t ak5calojet_fhpd[M_jetmaxcount];
-  Float_t ak5calojet_restrictedemf[M_jetmaxcount];
-  Float_t ak5calojet_btag[M_jetmaxcount][M_btagmax];
-  UInt_t ak5calojet_n90[M_jetmaxcount];
-  UInt_t ak5calojet_n60[M_jetmaxcount];
-  
-  UInt_t ak5jptjet_count;
-  Float_t ak5jptjet_e[M_jetmaxcount];
-  Float_t ak5jptjet_px[M_jetmaxcount];
-  Float_t ak5jptjet_py[M_jetmaxcount];
-  Float_t ak5jptjet_pz[M_jetmaxcount];
-  Float_t ak5jptjet_hadronicenergy[M_jetmaxcount];
-  Float_t ak5jptjet_chargedhadronicenergy[M_jetmaxcount];
-  Float_t ak5jptjet_emenergy[M_jetmaxcount];
-  Float_t ak5jptjet_chargedemenergy[M_jetmaxcount];
-  UInt_t ak5jptjet_chargedmulti[M_jetmaxcount];	
-  Float_t ak5jptjet_energycorr[M_jetmaxcount];
-  Float_t ak5jptjet_fhpd[M_jetmaxcount];
-  Float_t ak5jptjet_restrictedemf[M_jetmaxcount];
-  Float_t ak5jptjet_btag[M_jetmaxcount][M_btagmax];
-  UInt_t ak5jptjet_n90[M_jetmaxcount];
-  
-  UInt_t ak5pfjet_count;
-  Float_t ak5pfjet_e[M_jetmaxcount];
-  Float_t ak5pfjet_px[M_jetmaxcount];
-  Float_t ak5pfjet_py[M_jetmaxcount];
-  Float_t ak5pfjet_pz[M_jetmaxcount];
-  Float_t ak5pfjet_hadronicenergy[M_jetmaxcount];
-  Float_t ak5pfjet_chargedhadronicenergy[M_jetmaxcount];
-  Float_t ak5pfjet_emenergy[M_jetmaxcount];
-  Float_t ak5pfjet_chargedemenergy[M_jetmaxcount];
-  UInt_t ak5pfjet_chargedmulti[M_jetmaxcount];	
-  UInt_t ak5pfjet_neutralmulti[M_jetmaxcount];	
-  Float_t ak5pfjet_energycorr[M_jetmaxcount];
-  Float_t ak5pfjet_btag[M_jetmaxcount][M_btagmax];
-  UInt_t ak5pfjet_trigger[M_jetmaxcount];
-  UInt_t ak5pfjet_sv_count[M_jetmaxcount];
-  Float_t ak5pfjet_sv_x[M_jetmaxcount];
-  Float_t ak5pfjet_sv_y[M_jetmaxcount];
-  Float_t ak5pfjet_sv_z[M_jetmaxcount];
-  Float_t ak5pfjet_sv_dx[M_jetmaxcount];
-  Float_t ak5pfjet_sv_dy[M_jetmaxcount];
-  Float_t ak5pfjet_sv_dz[M_jetmaxcount];
-  //Bool_t ak5pfjet_pu_jet_cut_loose[M_jetmaxcount];
-  //Bool_t ak5pfjet_pu_jet_cut_medium[M_jetmaxcount];
-  //Bool_t ak5pfjet_pu_jet_cut_tight[M_jetmaxcount];
-  //Float_t ak5pfjet_pu_jet_cut_mva[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_simple_loose[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_simple_medium[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_simple_tight[M_jetmaxcount];
-  Float_t ak5pfjet_pu_jet_simple_mva[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_full_loose[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_full_medium[M_jetmaxcount];
-  Bool_t ak5pfjet_pu_jet_full_tight[M_jetmaxcount];
-  Float_t ak5pfjet_pu_jet_full_mva[M_jetmaxcount];
-  
-  UInt_t electron_count;
-  Float_t electron_px[M_electronmaxcount];
-  Float_t electron_py[M_electronmaxcount];
-  Float_t electron_pz[M_electronmaxcount];
-  Float_t electron_trackchi2[M_electronmaxcount];
-  Float_t electron_trackndof[M_electronmaxcount];
-  Float_t electron_outerx[M_electronmaxcount];
-  Float_t electron_outery[M_electronmaxcount];
-  Float_t electron_outerz[M_electronmaxcount];
-  Float_t electron_closestpointx[M_electronmaxcount];
-  Float_t electron_closestpointy[M_electronmaxcount];
-  Float_t electron_closestpointz[M_electronmaxcount];
-  Float_t electron_esuperclusterovertrack[M_electronmaxcount];
-  Float_t electron_eseedclusterovertrack[M_electronmaxcount];
-  Float_t electron_deltaetasuperclustertrack[M_electronmaxcount];
-  Float_t electron_deltaphisuperclustertrack[M_electronmaxcount];
-  Float_t electron_e1x5[M_electronmaxcount];
-  Float_t electron_e2x5[M_electronmaxcount];
-  Float_t electron_e5x5[M_electronmaxcount];
-  Float_t electron_sigmaetaeta[M_electronmaxcount];
-  Float_t electron_sigmaietaieta[M_electronmaxcount];
-  Float_t electron_ehcaloverecal[M_electronmaxcount];
-  Float_t electron_ehcaloverecaldepth1[M_electronmaxcount];
-  Float_t electron_ehcaloverecaldepth2[M_electronmaxcount];
-  Float_t electron_isolationr3track[M_electronmaxcount];
-  Float_t electron_isolationr3ecal[M_electronmaxcount];
-  Float_t electron_isolationr3hcal[M_electronmaxcount];
-  Float_t electron_isolationr4track[M_electronmaxcount];
-  Float_t electron_isolationr4ecal[M_electronmaxcount];
-  Float_t electron_isolationr4hcal[M_electronmaxcount];
-  Float_t electron_pfisolationr3_sumchargedhadronpt[M_electronmaxcount];
-  Float_t electron_pfisolationr3_sumchargedparticlept[M_electronmaxcount];
-  Float_t electron_pfisolationr3_sumneutralhadronet[M_electronmaxcount];
-  Float_t electron_pfisolationr3_sumphotonet[M_electronmaxcount];
-  Float_t electron_pfisolationr3_sumPUpt[M_electronmaxcount];
-  Float_t electron_pfisolationr4_sumchargedhadronpt[M_electronmaxcount];
-  Float_t electron_pfisolationr4_sumchargedparticlept[M_electronmaxcount];
-  Float_t electron_pfisolationr4_sumneutralhadronet[M_electronmaxcount];
-  Float_t electron_pfisolationr4_sumphotonet[M_electronmaxcount];
-  Float_t electron_pfisolationr4_sumPUpt[M_electronmaxcount];
-  Int_t electron_charge[M_electronmaxcount];
-  UChar_t electron_nhits[M_electronmaxcount];
-  UChar_t electron_nmissinghits[M_electronmaxcount];
-  UChar_t electron_npixelhits[M_electronmaxcount];
-  UChar_t electron_npixellayers[M_electronmaxcount];
-  UChar_t electron_nstriplayers[M_electronmaxcount];
-  Float_t electron_dxy[M_electronmaxcount];
-  Float_t electron_dxyerr[M_electronmaxcount];
-  Float_t electron_dz[M_electronmaxcount];
-  Float_t electron_dzerr[M_electronmaxcount];
-  Float_t electron_convdist[M_electronmaxcount];
-  Float_t electron_convdcot[M_electronmaxcount];
-  Float_t electron_convradius[M_electronmaxcount];
-  UInt_t electron_gapinfo[M_electronmaxcount];
-  UInt_t electron_chargeinfo[M_electronmaxcount];
-  Float_t electron_fbrems[M_electronmaxcount];
-  Int_t electron_numbrems[M_electronmaxcount];
-  Int_t electron_superclusterindex[M_electronmaxcount];
-  UChar_t electron_info[M_electronmaxcount];
-  UInt_t electron_trigger[M_electronmaxcount];
-  Float_t electron_mva_id_trig[M_electronmaxcount];
-  Float_t electron_mva_id_nontrig[M_electronmaxcount];
-  Float_t electron_mva_iso[M_electronmaxcount];
-  Bool_t electron_has_conversion[M_electronmaxcount];
-  
-  UInt_t photon_count;
-  Float_t photon_px[M_photonmaxcount];
-  Float_t photon_py[M_photonmaxcount];
-  Float_t photon_pz[M_photonmaxcount];
-  Float_t photon_e1x5[M_photonmaxcount];
-  Float_t photon_e2x5[M_photonmaxcount];
-  Float_t photon_e3x3[M_photonmaxcount];
-  Float_t photon_e5x5[M_photonmaxcount];
-  Float_t photon_sigmaetaeta[M_photonmaxcount];
-  Float_t photon_sigmaietaieta[M_photonmaxcount];
-  Float_t photon_ehcaloverecal[M_photonmaxcount];
-  Float_t photon_ehcaloverecaldepth1[M_photonmaxcount];
-  Float_t photon_ehcaloverecaldepth2[M_photonmaxcount];
-  Float_t photon_maxenergyxtal[M_photonmaxcount];
-  Float_t photon_isolationr3track[M_photonmaxcount];
-  Float_t photon_isolationr3trackhollow[M_photonmaxcount];
-  UInt_t photon_isolationr3ntrack[M_photonmaxcount];
-  UInt_t photon_isolationr3ntrackhollow[M_photonmaxcount];
-  Float_t photon_isolationr3ecal[M_photonmaxcount];
-  Float_t photon_isolationr3hcal[M_photonmaxcount];
-  Float_t photon_isolationr4track[M_photonmaxcount];
-  Float_t photon_isolationr4trackhollow[M_photonmaxcount];
-  UInt_t photon_isolationr4ntrack[M_photonmaxcount];
-  UInt_t photon_isolationr4ntrackhollow[M_photonmaxcount];
-  Float_t photon_isolationr4ecal[M_photonmaxcount];
-  Float_t photon_isolationr4hcal[M_photonmaxcount];
-  Int_t photon_superclusterindex[M_photonmaxcount];
-  UChar_t photon_info[M_photonmaxcount];
-  UInt_t photon_gapinfo[M_photonmaxcount];
-  UInt_t photon_trigger[M_photonmaxcount];
-  UInt_t photon_conversionbegin[M_photonmaxcount];
-  
-  UInt_t conversion_count;
-  UChar_t conversion_info[M_conversionmaxcount];
-  Float_t conversion_vx[M_conversionmaxcount];
-  Float_t conversion_vy[M_conversionmaxcount];
-  Float_t conversion_vz[M_conversionmaxcount];
-  Float_t conversion_chi2[M_conversionmaxcount];
-  Float_t conversion_ndof[M_conversionmaxcount];
-  Float_t conversion_cov[M_conversionmaxcount][6];
-  Float_t conversion_mvaout[M_conversionmaxcount];
-  Float_t conversion_trackecalpointx[M_conversionmaxcount][2];
-  Float_t conversion_trackecalpointy[M_conversionmaxcount][2];
-  Float_t conversion_trackecalpointz[M_conversionmaxcount][2];
-  Float_t conversion_trackpx[M_conversionmaxcount][2];
-  Float_t conversion_trackpy[M_conversionmaxcount][2];
-  Float_t conversion_trackpz[M_conversionmaxcount][2];
-  Float_t conversion_trackclosestpointx[M_conversionmaxcount][2];
-  Float_t conversion_trackclosestpointy[M_conversionmaxcount][2];
-  Float_t conversion_trackclosestpointz[M_conversionmaxcount][2];
-  Float_t conversion_trackchi2[M_conversionmaxcount][2];
-  Float_t conversion_trackndof[M_conversionmaxcount][2];
-  Float_t conversion_trackdxy[M_conversionmaxcount][2];
-  Float_t conversion_trackdxyerr[M_conversionmaxcount][2];
-  Float_t conversion_trackdz[M_conversionmaxcount][2];
-  Float_t conversion_trackdzerr[M_conversionmaxcount][2];
-  Int_t conversion_trackcharge[M_conversionmaxcount][2];
-  UChar_t conversion_tracknhits[M_conversionmaxcount][2];
-  UChar_t conversion_tracknmissinghits[M_conversionmaxcount][2];
-  UChar_t conversion_tracknpixelhits[M_conversionmaxcount][2];
-  UChar_t conversion_tracknpixellayers[M_conversionmaxcount][2];
-  UChar_t conversion_tracknstriplayers[M_conversionmaxcount][2];
-  
-  UInt_t allconversion_count;
-  UChar_t allconversion_info[M_conversionmaxcount];
-  Float_t allconversion_vx[M_conversionmaxcount];
-  Float_t allconversion_vy[M_conversionmaxcount];
-  Float_t allconversion_vz[M_conversionmaxcount];
-  Float_t allconversion_chi2[M_conversionmaxcount];
-  Float_t allconversion_ndof[M_conversionmaxcount];
-  Float_t allconversion_cov[M_conversionmaxcount][6];
-  Float_t allconversion_mvaout[M_conversionmaxcount];
-  Float_t allconversion_trackecalpointx[M_conversionmaxcount][2];
-  Float_t allconversion_trackecalpointy[M_conversionmaxcount][2];
-  Float_t allconversion_trackecalpointz[M_conversionmaxcount][2];
-  Float_t allconversion_trackpx[M_conversionmaxcount][2];
-  Float_t allconversion_trackpy[M_conversionmaxcount][2];
-  Float_t allconversion_trackpz[M_conversionmaxcount][2];
-  Float_t allconversion_trackclosestpointx[M_conversionmaxcount][2];
-  Float_t allconversion_trackclosestpointy[M_conversionmaxcount][2];
-  Float_t allconversion_trackclosestpointz[M_conversionmaxcount][2];
-  Float_t allconversion_trackchi2[M_conversionmaxcount][2];
-  Float_t allconversion_trackndof[M_conversionmaxcount][2];
-  Float_t allconversion_trackdxy[M_conversionmaxcount][2];
-  Float_t allconversion_trackdxyerr[M_conversionmaxcount][2];
-  Float_t allconversion_trackdz[M_conversionmaxcount][2];
-  Float_t allconversion_trackdzerr[M_conversionmaxcount][2];
-  Int_t allconversion_trackcharge[M_conversionmaxcount][2];
-  UChar_t allconversion_tracknhits[M_conversionmaxcount][2];
-  UChar_t allconversion_tracknmissinghits[M_conversionmaxcount][2];
-  UChar_t allconversion_tracknpixelhits[M_conversionmaxcount][2];
-  UChar_t allconversion_tracknpixellayers[M_conversionmaxcount][2];
-  UChar_t allconversion_tracknstriplayers[M_conversionmaxcount][2];
-
-  UInt_t tau_count;
-  Float_t tau_e[M_taumaxcount];
-  Float_t tau_px[M_taumaxcount];
-  Float_t tau_py[M_taumaxcount];
-  Float_t tau_pz[M_taumaxcount];
-  Float_t tau_isolationneutralspt[M_taumaxcount];
-  UInt_t tau_isolationneutralsnum[M_taumaxcount];
-  Float_t tau_isolationchargedpt[M_taumaxcount];
-  UInt_t tau_isolationchargednum[M_taumaxcount];
-  Float_t tau_isolationgammapt[M_taumaxcount];
-  UInt_t tau_isolationgammanum[M_taumaxcount];
-  Float_t tau_leadpfchargedhadrcandecalenergy[M_taumaxcount];
-  Float_t tau_leadpfchargedhadrcandhcalenergy[M_taumaxcount];
-  Float_t tau_leadpfchargedhadrcandp[M_taumaxcount];
-  Float_t tau_dxy[M_taumaxcount];
-  Float_t tau_dz[M_taumaxcount];
-  Float_t tau_ip3d[M_taumaxcount];
-  Float_t tau_ip3dSig[M_taumaxcount];
-  UInt_t tau_nprongs[M_taumaxcount];
-  Int_t tau_charge[M_taumaxcount];
-  ULong64_t tau_dishps[M_taumaxcount];
-
-/*   Float_t tau_againstelectronmva5raw[M_taumaxcount]; */
-/*   Float_t tau_byIsolationmva3newDMwoLTraw[M_taumaxcount]; */
-/*   Float_t tau_byIsolationmva3newDMwLTraw[M_taumaxcount]; */
-/*   Float_t tau_againstelectronmva5[M_taumaxcount]; */
-/*   Float_t tau_againstelectronVLoosemva5[M_taumaxcount]; */
-/*   Float_t tau_againstelectronLoosemva5[M_taumaxcount]; */
-/*   Float_t tau_againstelectronMediummva5[M_taumaxcount]; */
-/*   Float_t tau_againstelectronTightmva5[M_taumaxcount]; */
-/*   Float_t tau_againstelectronDeadECAL[M_taumaxcount]; */
-/*   Float_t tau_againstelectronmva5category[M_taumaxcount]; */
-/*   Float_t tau_bycombinedisolationdeltabetacorrraw3hits[M_taumaxcount]; */
-/*   Float_t tau_hpsMVA3oldDMwLT[M_taumaxcount]; */
-/*   Float_t tau_hpsMVA3oldDMwoLT[M_taumaxcount]; */
-/*   Int_t   tau_tightestAntiMu3WP[M_taumaxcount]; */
-/*   Int_t   tau_tightestAntiEleWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestAntiMu2WP[M_taumaxcount]; */
-/*   Int_t   tau_tightestHPSMVA3oldDMwoLTWP[M_taumaxcount]; */
-/*   //  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestHPSMVA3newDMwLTWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestHPSMVA3newDMwoLTWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestAntiMuWP[M_taumaxcount]; */
-/*   Int_t   tau_tightestAntiMuMVAWP[M_taumaxcount]; */
-
-
-  Float_t tau_emfraction[M_taumaxcount];
-  Float_t tau_newemfraction[M_taumaxcount];
-  Float_t tau_hcaltotoverplead[M_taumaxcount];
-  Float_t tau_hcal3x3overplead[M_taumaxcount];
-  Float_t tau_ecalstripsumeoverplead[M_taumaxcount];
-  Float_t tau_bremsrecoveryeoverplead[M_taumaxcount];
-  Float_t tau_calocomp[M_taumaxcount];
-  Float_t tau_segcomp[M_taumaxcount];
-  UInt_t tau_trigger[M_taumaxcount]; 
-  Bool_t tau_L1trigger_match[M_taumaxcount]; 
-  Float_t tau_ak5pfjet_e[M_taumaxcount];
-  Float_t tau_ak5pfjet_px[M_taumaxcount];
-  Float_t tau_ak5pfjet_py[M_taumaxcount];
-  Float_t tau_ak5pfjet_pz[M_taumaxcount];
-  UInt_t tau_chargedbegin[M_taumaxcount];
-  UInt_t tau_charged_count;
-  Float_t tau_charged_px[M_taumaxcount*10];
-  Float_t tau_charged_py[M_taumaxcount*10];
-  Float_t tau_charged_pz[M_taumaxcount*10];
-  Float_t tau_charged_outerx[M_taumaxcount*10];
-  Float_t tau_charged_outery[M_taumaxcount*10];
-  Float_t tau_charged_outerz[M_taumaxcount*10];
-  Float_t tau_charged_closestpointx[M_taumaxcount*10];
-  Float_t tau_charged_closestpointy[M_taumaxcount*10];
-  Float_t tau_charged_closestpointz[M_taumaxcount*10];
-  Float_t tau_charged_chi2[M_taumaxcount*10];
-  Float_t tau_charged_ndof[M_taumaxcount*10];
-  Float_t tau_charged_dxy[M_taumaxcount*10];
-  Float_t tau_charged_dxyerr[M_taumaxcount*10];
-  Float_t tau_charged_dz[M_taumaxcount*10];
-  Float_t tau_charged_dzerr[M_taumaxcount*10];
-  Float_t tau_charged_dedxharmonic2[M_taumaxcount*10];
-  Int_t tau_charged_charge[M_taumaxcount*10];
-  UChar_t tau_charged_nhits[M_taumaxcount*10];
-  UChar_t tau_charged_nmissinghits[M_taumaxcount*10];
-  UChar_t tau_charged_npixelhits[M_taumaxcount*10];
-  UChar_t tau_charged_npixellayers[M_taumaxcount*10];
-  UChar_t tau_charged_nstriplayers[M_taumaxcount*10];
-  Int_t tau_signalPFChargedHadrCands_size[M_taumaxcount];
-  Int_t tau_signalPFGammaCands_size[M_taumaxcount];
-  string tau_genTaudecayMode[M_taumaxcount];
-
-  UInt_t tautaupair_count;
-  Float_t tautaupair_leg1_px[M_tautaupairmaxcount];
-  Float_t tautaupair_leg1_py[M_tautaupairmaxcount];
-  Float_t tautaupair_leg1_pz[M_tautaupairmaxcount];
-  Float_t tautaupair_leg1_energy[M_tautaupairmaxcount];
-  Float_t tautaupair_leg2_px[M_tautaupairmaxcount];
-  Float_t tautaupair_leg2_py[M_tautaupairmaxcount];
-  Float_t tautaupair_leg2_pz[M_tautaupairmaxcount];
-  Float_t tautaupair_leg2_energy[M_tautaupairmaxcount];
-  Bool_t tautaupair_svfit_int_valid[M_tautaupairmaxcount];
-  Float_t tautaupair_svfit_mass_int[M_tautaupairmaxcount];
-  Float_t tautaupair_svfit_mass_int_err_up[M_tautaupairmaxcount];
-  Float_t tautaupair_svfit_mass_int_err_down[M_tautaupairmaxcount];
-  Float_t tautaupair_dca2d[M_tautaupairmaxcount];
-  Float_t tautaupair_dca2d_err[M_tautaupairmaxcount];
-  Float_t tautaupair_dca3d[M_tautaupairmaxcount];
-  Float_t tautaupair_dca3d_err[M_tautaupairmaxcount];
-
-  UInt_t mutautaupair_count;
-  Float_t mutautaupair_leg1_px[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg1_py[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg1_pz[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg1_energy[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg2_px[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg2_py[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg2_pz[M_mutautaupairmaxcount];
-  Float_t mutautaupair_leg2_energy[M_mutautaupairmaxcount];
-  Float_t mutautaupair_mu_px[M_mutautaupairmaxcount];
-  Float_t mutautaupair_mu_py[M_mutautaupairmaxcount];
-  Float_t mutautaupair_mu_pz[M_mutautaupairmaxcount];
-  Float_t mutautaupair_mu_energy[M_mutautaupairmaxcount];
-  Bool_t mutautaupair_svfit_int_valid[M_mutautaupairmaxcount];
-  Float_t mutautaupair_svfit_mass_int[M_mutautaupairmaxcount];
-  Float_t mutautaupair_svfit_mass_int_err_up[M_mutautaupairmaxcount];
-  Float_t mutautaupair_svfit_mass_int_err_down[M_mutautaupairmaxcount];
-  Float_t mutautaupair_dca2d[M_mutautaupairmaxcount];
-  Float_t mutautaupair_dca2d_err[M_mutautaupairmaxcount];
-  Float_t mutautaupair_dca3d[M_mutautaupairmaxcount];
-  Float_t mutautaupair_dca3d_err[M_mutautaupairmaxcount];
-
-  UInt_t eltautaupair_count;
-  Float_t eltautaupair_leg1_px[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg1_py[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg1_pz[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg1_energy[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg2_px[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg2_py[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg2_pz[M_eltautaupairmaxcount];
-  Float_t eltautaupair_leg2_energy[M_eltautaupairmaxcount];
-  Float_t eltautaupair_el_px[M_eltautaupairmaxcount];
-  Float_t eltautaupair_el_py[M_eltautaupairmaxcount];
-  Float_t eltautaupair_el_pz[M_eltautaupairmaxcount];
-  Float_t eltautaupair_el_energy[M_eltautaupairmaxcount];
-  Bool_t eltautaupair_svfit_int_valid[M_eltautaupairmaxcount];
-  Float_t eltautaupair_svfit_mass_int[M_eltautaupairmaxcount];
-  Float_t eltautaupair_svfit_mass_int_err_up[M_eltautaupairmaxcount];
-  Float_t eltautaupair_svfit_mass_int_err_down[M_eltautaupairmaxcount];
-  Float_t eltautaupair_dca2d[M_eltautaupairmaxcount];
-  Float_t eltautaupair_dca2d_err[M_eltautaupairmaxcount];
-  Float_t eltautaupair_dca3d[M_eltautaupairmaxcount];
-  Float_t eltautaupair_dca3d_err[M_eltautaupairmaxcount];
-
-  Float_t ak5pfjet_rho;
-  Float_t ak5pfjet_sigma;
-
-  Float_t calomet_ex;
-  Float_t calomet_ey;
-  Float_t calomet_exmuons;
-  Float_t calomet_eymuons;
-
-  Float_t tcmet_ex;
-  Float_t tcmet_ey;
-
-  Float_t pfmet_ex;
-  Float_t pfmet_ey;
-  Float_t pfmettype1_ex;
-  Float_t pfmettype1_ey;
-  Float_t pfmetmva_ex;
-  Float_t pfmetmva_ey;
-
-  Float_t pfmetsigxx;
-  Float_t pfmetsigxy;
-  Float_t pfmetsigyx;
-  Float_t pfmetsigyy;
-
-  UInt_t secvertices_count;
-  Float_t secvertices_vx[M_secverticesmaxcount];
-  Float_t secvertices_vy[M_secverticesmaxcount];
-  Float_t secvertices_vz[M_secverticesmaxcount];
-  Float_t secvertices_chi2[M_secverticesmaxcount];
-  Float_t secvertices_ndof[M_secverticesmaxcount];
-  Float_t secvertices_cov[M_secverticesmaxcount][6];
-  Float_t secvertices_track_px[M_secverticesmaxcount][2];
-  Float_t secvertices_track_py[M_secverticesmaxcount][2];
-  Float_t secvertices_track_pz[M_secverticesmaxcount][2];
-  Float_t secvertices_track_closestpointx[M_secverticesmaxcount][2];
-  Float_t secvertices_track_closestpointy[M_secverticesmaxcount][2];
-  Float_t secvertices_track_closestpointz[M_secverticesmaxcount][2];
-  Float_t secvertices_track_chi2[M_secverticesmaxcount][2];
-  Float_t secvertices_track_ndof[M_secverticesmaxcount][2];
-  Float_t secvertices_track_dxy[M_secverticesmaxcount][2];
-  Float_t secvertices_track_dxyerr[M_secverticesmaxcount][2];
-  Float_t secvertices_track_dz[M_secverticesmaxcount][2];
-  Float_t secvertices_track_dzerr[M_secverticesmaxcount][2];
-  Float_t secvertices_track_dedxharmonic2[M_secverticesmaxcount][2];
-  Int_t secvertices_track_charge[M_secverticesmaxcount][2];
-  UChar_t secvertices_track_nhits[M_secverticesmaxcount][2];
-  UChar_t secvertices_track_nmissinghits[M_secverticesmaxcount][2];
-  UChar_t secvertices_track_npixelhits[M_secverticesmaxcount][2];
-  UChar_t secvertices_track_npixellayers[M_secverticesmaxcount][2];
-  UChar_t secvertices_track_nstriplayers[M_secverticesmaxcount][2];
-
-  UInt_t musecvertices_count;
-  Float_t musecvertices_vx[M_musecverticesmaxcount];
-  Float_t musecvertices_vy[M_musecverticesmaxcount];
-  Float_t musecvertices_vz[M_musecverticesmaxcount];
-  Float_t musecvertices_chi2[M_musecverticesmaxcount];
-  Float_t musecvertices_ndof[M_musecverticesmaxcount];
-  Float_t musecvertices_cov[M_musecverticesmaxcount][6];
-  Float_t musecvertices_track_px[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_py[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_pz[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_closestpointx[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_closestpointy[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_closestpointz[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_chi2[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_ndof[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_dxy[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_dxyerr[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_dz[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_dzerr[M_musecverticesmaxcount][2];
-  Float_t musecvertices_track_dedxharmonic2[M_musecverticesmaxcount][2];
-  Int_t musecvertices_track_charge[M_musecverticesmaxcount][2];
-  UChar_t musecvertices_track_nhits[M_musecverticesmaxcount][2];
-  UChar_t musecvertices_track_nmissinghits[M_musecverticesmaxcount][2];
-  UChar_t musecvertices_track_npixelhits[M_musecverticesmaxcount][2];
-  UChar_t musecvertices_track_npixellayers[M_musecverticesmaxcount][2];
-  UChar_t musecvertices_track_nstriplayers[M_musecverticesmaxcount][2];
-  //Generator Information
-  Float_t genweight;
-  Float_t genid1;
-  Float_t genx1;
-  Float_t genid2;
-  Float_t genx2;
-  Float_t genScale;
-
-  Int_t numpileupinteractionsminus;
-  Int_t numpileupinteractions;
-  Int_t numpileupinteractionsplus;
-  Float_t numtruepileupinteractions;
-
-  Float_t genmetcalo_ex;
-  Float_t genmetcalo_ey;
-  Float_t genmettrue_ex;
-  Float_t genmettrue_ey;
-
-  UInt_t genparticles_count;
-  Float_t genparticles_e[M_genparticlesmaxcount];
-  Float_t genparticles_px[M_genparticlesmaxcount];
-  Float_t genparticles_py[M_genparticlesmaxcount];
-  Float_t genparticles_pz[M_genparticlesmaxcount];
-  Float_t genparticles_vx[M_genparticlesmaxcount];
-  Float_t genparticles_vy[M_genparticlesmaxcount];
-  Float_t genparticles_vz[M_genparticlesmaxcount];
-  Int_t genparticles_pdgid[M_genparticlesmaxcount];
-  Int_t genparticles_status[M_genparticlesmaxcount];
-  UInt_t genparticles_info[M_genparticlesmaxcount];
-
-  UInt_t genallparticles_count;
-  Float_t genallparticles_e[M_genallparticlesmaxcount];
-  Float_t genallparticles_px[M_genallparticlesmaxcount];
-  Float_t genallparticles_py[M_genallparticlesmaxcount];
-  Float_t genallparticles_pz[M_genallparticlesmaxcount];
-  Float_t genallparticles_vx[M_genallparticlesmaxcount];
-  Float_t genallparticles_vy[M_genallparticlesmaxcount];
-  Float_t genallparticles_vz[M_genallparticlesmaxcount];
-  Int_t genallparticles_pdgid[M_genallparticlesmaxcount];
-  Int_t genallparticles_charge[M_genallparticlesmaxcount];
-  Int_t genallparticles_status[M_genallparticlesmaxcount];
-  UInt_t genallparticles_motherbeg[M_genallparticlesmaxcount];
-  UInt_t genallparticles_daughterbeg[M_genallparticlesmaxcount];
-
-  UInt_t genallparticlesmother_count;
-  UInt_t genallparticles_mothers[M_genmotherdaughtermaxcount];
-
-  UInt_t genallparticlesdaughter_count;
-  UInt_t genallparticles_daughters[M_genmotherdaughtermaxcount];
-
-  Float_t genVtxX_Higs[M_genallparticlesmaxcount];
-  Float_t genVtxY_Higs[M_genallparticlesmaxcount];
-  Float_t genVtxZ_Higs[M_genallparticlesmaxcount];
-
-
-  //lumitree
-  UInt_t lumi_run;
-  UInt_t lumi_block;
-  Float_t lumi_value;
-  Float_t lumi_valueerr;
-  Float_t lumi_livefrac;
-  Float_t lumi_deadfrac;
-  UInt_t lumi_quality;
-  UInt_t lumi_eventsprocessed;
-  UInt_t lumi_eventsfiltered;
-  UInt_t lumi_hltprescaletable;
-  UInt_t lumi_l1algoprescaletable;
-  UInt_t lumi_l1techprescaletable;
-
-  //runtree
-  UInt_t run_number;
-  UInt_t run_hltcount;
-  Char_t run_hltnames[20000];
-  Char_t run_hltmunames[10000];
-  Char_t run_hltelnames[10000];
-  Char_t run_hlttaunames[10000];
-  Char_t run_hltphotonnames[10000];
-  Char_t run_hltjetnames[10000];
-  Char_t run_taudiscriminators[10000];
-  UInt_t run_hltprescaletablescount;
-  UInt_t run_hltprescaletables[10000];
-  UInt_t run_l1algocount;
-  UInt_t run_l1algoprescaletablescount;
-  UInt_t run_l1algoprescaletables[10000];
-  UInt_t run_l1techcount;
-  UInt_t run_l1techprescaletablescount;
-  UInt_t run_l1techprescaletables[10000];		
-};
-
-DEFINE_FWK_MODULE(RootMaker);
-
-#endif
-
 //to set the values from parameter
 RootMaker::RootMaker(const edm::ParameterSet& iConfig) :  
   cdata(iConfig.getUntrackedParameter<bool>("IsData", false)),
@@ -1096,6 +105,8 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
   cAK5JPTNum(iConfig.getUntrackedParameter<int>("RecAK5JPTNum", 0)),
   cAK5PFFilterPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFFilterPtMin", 0.)),
   cAK5PFPtMin(iConfig.getUntrackedParameter<double>("RecAK5PFPtMin", 0.)),
+  cAK5PFPt4RC(iConfig.getUntrackedParameter<double>("RecAK5PFPtMin4RC", 30.)),
+  cAK5PFEta4RC(iConfig.getUntrackedParameter<double>("RecAK5PFEtaMin4RC", 2.4)),
   cAK5PFEtaMax(iConfig.getUntrackedParameter<double>("RecAK5PFEtaMax", 1000000.)),
   cJetHLTriggerMatching(iConfig.getUntrackedParameter<vector<string> >("RecJetHLTriggerMatching")),
   cAK5PFNum(iConfig.getUntrackedParameter<int>("RecAK5PFNum", 0)),
@@ -1109,7 +120,7 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
   cPeriod(iConfig.getUntrackedParameter<std::string>("Period")),
   cSkim(iConfig.getUntrackedParameter<unsigned int>("Skim")),
   TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
-  sampleName(iConfig.getUntrackedParameter<std::string>("SampleName")),
+  sampleName(iConfig.getUntrackedParameter<std::string>("SampleName", "Higgs")),
   PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
   propagatorWithMaterial(0)
 {
@@ -1136,6 +147,26 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
   const char* cmssw_base = getenv("CMSSW_BASE");
   if(!cmssw_base) throw cms::Exception("No CMSSW runtime environment found");
   std::string prefix = std::string(cmssw_base) + "/src/";
+
+  //recoilCorrector
+  if(sampleName.find("ZJets") !=std::string::npos) {
+    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+  }
+  else if(sampleName.find("WJets")!=std::string::npos){
+    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_wjets53X_20pv_njet.root");
+    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+  }
+  else if(sampleName.find("Higgs")!=std::string::npos){
+    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_higgs53X_20pv_njet.root");
+    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+  }
+  else
+    corrector_ = 0;
+
 
   //Muon
   std::vector<std::string> muonid_weightfiles;
@@ -1675,6 +706,10 @@ void RootMaker::beginJob(){
   tree->Branch("ditau_leg2_Y_OPV", ditau_leg2_Y_OPV,"ditau_leg2_Y_OPV[ditau_Index]/F");
   tree->Branch("ditau_leg2_Z_OPV", ditau_leg2_Z_OPV,"ditau_leg2_Z_OPV[ditau_Index]/F");
   tree->Branch("diTauSVFitMass", diTauSVFitMass,"diTauSVFitMass[ditau_Index]/D");
+  tree->Branch("diTau_RecCorr_Px", diTau_RecCorr_Px,"diTau_RecCorr_Px[ditau_Index]/F");
+  tree->Branch("diTau_RecCorr_Py", diTau_RecCorr_Py,"diTau_RecCorr_Py[ditau_Index]/F");
+  tree->Branch("diTau_RecCorr_Pz", diTau_RecCorr_Pz,"diTau_RecCorr_Pz[ditau_Index]/F");
+  tree->Branch("diTau_RecCorr_E", diTau_RecCorr_E,"diTau_RecCorr_E[ditau_Index]/F");
 
   tree->Branch("mutautaupair_count", &mutautaupair_count, "mutautaupair_count/i");
   tree->Branch("mutautaupair_leg1_px", mutautaupair_leg1_px, "mutautaupair_leg1_px[mutautaupair_count]/F");
@@ -2190,8 +1225,9 @@ void RootMaker::endLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const
 
 void RootMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if(doDebug)  cout<<"inside the analyze function"<< endl;
-  
+  if(doDebug)  cout<<"inside the analyze function"<< endl; 
+
+  njets4RC = 0; 
   track_count = 0;
   primvertex_count = 0;
   supercluster_count = 0;
@@ -4091,7 +3127,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		} // if(nonTauTracks.size() >= 2) 
 	      
 
-		// calculate the SVFIT mass
+		// ditau SVFIT mass
 		LorentzVector Leg1p4((*Taus)[indxTau1].px(), (*Taus)[indxTau1].py(), (*Taus)[indxTau1].pz(), (*Taus)[indxTau1].energy());
 		LorentzVector Leg2p4((*Taus)[indxTau2].px(), (*Taus)[indxTau2].py(), (*Taus)[indxTau2].pz(), (*Taus)[indxTau2].energy());
 
@@ -4105,138 +3141,73 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		edm::Handle<reco::PFMETCollection> pfMet;
 		iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
 		LorentzVector MET(0, 0, 0, 0);
-		if(pfMet.isValid() && pfMet->size() > 0)   
-		  MET.SetPxPyPzE((*pfMet)[0].px(), (*pfMet)[0].py(), 0, (*pfMet)[0].energy());
-		
+		if(pfMet.isValid() && pfMet->size() > 0) MET.SetPxPyPzE((*pfMet)[0].px(), (*pfMet)[0].py(), 0, (*pfMet)[0].energy());
+
 		diTauSVFitMass[ditau_Index] =  ComputeDiTauMass(Leg1p4, Leg2p4, MET, cov_);
 		
 
-		//recoil Correction
+		//recoil Correction	
+		TLorentzVector recCorrection(0,0,0,0);
+
+		edm::Handle<pat::JetCollection> ak5pfJets;
+		iEvent.getByLabel(edm::InputTag("patJets"), ak5pfJets);
+		 
+		edm::Handle<edm::ValueMap<int> > puJetIdFlagFull;
+		iEvent.getByLabel(edm::InputTag("pileupJetIdProducer","fullId"), puJetIdFlagFull);
+		
+		vector<pat::Jet> jetColl;
+
+		if(ak5pfJets.isValid())
+		    {
+		      for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+			{
+			  const pat::Jet &jet = (*ak5pfJets)[i];
+			  float pt     = jet.pt();
+			  float eta    = jet.eta();
+			  bool ak5pfjetLooseID = PileupJetIdentifier::passJetId( (*puJetIdFlagFull)[(*ak5pfJets)[i].originalObjectRef()], PileupJetIdentifier::kLoose);
+			  if(pt > cAK5PFPt4RC && fabs(eta) < cAK5PFEta4RC && ak5pfjetLooseID)  jetColl.push_back(jet);	      
+			}
+		    }// if(ak5pfJets.isValid())
+		
+		
+		njets4RC = 0;
+		for(size_t i = 0; i < jetColl.size(); i++) {
+		  LorentzVector JetP4(jetColl[i].px(), jetColl[i].py(), jetColl[i].pz(), jetColl[i].energy());
+		  //cout<<"(dR1,dR2) :"<< ROOT::Math::VectorUtil::DeltaR(JetP4, Leg1p4)  <<", "<< ROOT::Math::VectorUtil::DeltaR(JetP4, Leg2p4) << endl;
+		  if( (ROOT::Math::VectorUtil::DeltaR(JetP4, Leg1p4) > 0.3 ) && (ROOT::Math::VectorUtil::DeltaR(JetP4, Leg2p4) > 0.3 ) ) njets4RC++;
+		}
+		
+		//Genn Collection
 		edm::Handle<GenParticleCollection> GenParticles;
 		iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
-		LorentzVector genVisLeg1_(0, 0, 0, 0);
-		LorentzVector genVisLeg2_(0, 0, 0, 0);
-		LorentzVector diLepton_(0, 0, 0, 0);
-		LorentzVector finalLepLeg1_(0, 0, 0, 0);
-		LorentzVector finalLepLeg2_(0, 0, 0, 0);
-
-
+		
 		if(!GenParticles.isValid()) 
 		  iEvent.getByLabel(edm::InputTag("genParticles"), GenParticles);
-
+		
 		if(GenParticles.isValid())
 		  {
+		    // const reco::GenParticle* boson = 0;
 		    for(unsigned i = 0 ; i < GenParticles->size() ; i++) {
+		      //boson = &(*GenParticles)[i];
+		      const reco::GenParticle * boson = &(*GenParticles)[i];
 
-		      //case-I  
-		      if(abs((*GenParticles)[i].pdgId()) == 23 ||  abs((*GenParticles)[i].pdgId()) ==25 || abs((*GenParticles)[i].pdgId()) ==35 || abs((*GenParticles)[i].pdgId()) == 36 ) {  // zjets
-			for(unsigned j = 0 ; j < (*GenParticles)[i].numberOfDaughters() ; j++) {
-			  const reco::Candidate *lepton = (*GenParticles)[i].daughter(j);
-			  
-			  //checking daugther
-			  if(lepton->pdgId() == -15) { //for tau-
-			    genVisLeg1_ = lepton->p4();
-			    
-			    //checking invisilbe decay
-			    for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
-			      const reco::Candidate *daughter2 = lepton->daughter(k);
-			      int daughter2Id     = daughter2->pdgId();
-			      int daughter2Status = daughter2->status();
-
-			      if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
-				genVisLeg1_ -= daughter2->p4();
-			    } // k-loop
-			  }// tau-
-
-			  if(lepton->pdgId() == +15) { //for tau+
-			    genVisLeg1_ = lepton->p4();
-			    
-			    //checking invisilbe decay
-			    for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
-			      const reco::Candidate *daughter2 = lepton->daughter(k);
-			      int daughter2Id     = daughter2->pdgId();
-			      int daughter2Status = daughter2->status();
-
-			      if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
-				genVisLeg1_ -= daughter2->p4();
-			    } // k-loop
-			  }// tau+
-			} //#daughter
-			
-			// finalLeg1, finalLeg2  
-			if(genVisLeg1_.Pt() > 0) {
-			  if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg1p4) < 0.3)
-			    finalLepLeg1_ = Leg1p4;
-			  else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg2p4) < 0.3)
-			    finalLepLeg1_ = Leg2p4;
-			  else
-			    finalLepLeg1_ = genVisLeg1_;
+		      if(abs(boson->pdgId()) == 23 ||  abs(boson->pdgId()) == 24 || abs(boson->pdgId()) ==25 || abs(boson->pdgId()) ==35 || abs(boson->pdgId()) == 36 ) 
+			{
+			  recCorrection = RecoilCorrectedMET(MET, Leg1p4, Leg1p4, boson, sampleName, njets4RC);
+			  diTau_RecCorr_Px[ditau_Index] = recCorrection.Px();
+			  diTau_RecCorr_Py[ditau_Index] = recCorrection.Py();
+			  diTau_RecCorr_Pz[ditau_Index] = recCorrection.Pz();
+			  diTau_RecCorr_E[ditau_Index]  = recCorrection.E();
 			}
-			
-			if(genVisLeg2_.Pt() > 0) {
-			  if(ROOT::Math::VectorUtil::DeltaR(genVisLeg2_, Leg1p4) < 0.3)
-			    finalLepLeg2_ = Leg1p4;
-			  else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg2_, Leg2p4) < 0.3)
-			    finalLepLeg2_ = Leg2p4;
-			  else
-			    finalLepLeg2_ = Leg2p4;
-			}
-			
-			if(finalLepLeg1_.Pt() > 0 && finalLepLeg2_.Pt() > 0) 
-			  diLepton_ = finalLepLeg1_ + finalLepLeg2_;
-			else diLepton_ = Leg1p4 + Leg2p4;
-		      } //zjets 
-		      
-		      
-		      //case-II  
-		      if(abs((*GenParticles)[i].pdgId()) == 24) {
-			for(unsigned j = 0 ; j < (*GenParticles)[i].numberOfDaughters() ; j++) {
-			  const reco::Candidate *lepton = (*GenParticles)[i].daughter(j);
-			  
-			  //checking daugther
-			  if(abs(lepton->pdgId()) == 15) { //for tau-/tau+
-			    genVisLeg1_ = lepton->p4();
-			    
-			    //checking invisilbe decay
-			    for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
-			      const reco::Candidate *daughter2 = lepton->daughter(k);
-			      int daughter2Id     = daughter2->pdgId();
-			      int daughter2Status = daughter2->status();
-
-			      if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
-				genVisLeg1_ -= daughter2->p4();
-			    } // k-loop
-			  }// tau-/tau+
-			  else  if(abs(lepton->pdgId()) == 11 || abs(lepton->pdgId()) == 13) {  // ele, mu
-			    genVisLeg1_ = lepton->p4();
-			  }
-			} //#daughter
-			
-			// finalLeg1
-			if(genVisLeg1_.Pt() > 0){
-			  if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg1p4 ) < 0.3)
-			    finalLepLeg1_ = Leg1p4;
-			  else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg2p4) < 0.3) 
-			    finalLepLeg1_ = Leg2p4;
-			  else
-			    finalLepLeg1_ = Leg1p4;
-			}
-			
-			if(finalLepLeg1_.Pt() > 0) 
-			  diLepton_ = finalLepLeg1_;
-			else diLepton_ = Leg1p4;
-		      } //Wjets 		      
-		    }// for(unsigned i = 0 ; i < GenParticles->size() ; i++) {
-		  } //if(GenParticles.isValid())
-		
-		//		metRecCorr->RecoilCorrectedMET(MET, Leg1p4, Leg1p4, LorentzVector genBoson_, "ZJets", int nJets_);
-		
+		    }
+		  }
 		ditau_Index++; 
+
 	      } // for (unsigned indxTau2 = indxTau1+1; indxTau2 < tauIndexSelection.size(); indxTau2++)
 	  } // for (unsigned indxTau1 =0; indxTau1 < tauIndexSelection.size() ; indxTau1++) 
       } // if(tau_vtxFound)
     } // if(Taus.isValid())
-
+  
   if(doDebug) cout<<"Leaving the AddTaus()"<< endl;
   return nGoodTaus;
 }
@@ -4573,57 +3544,57 @@ bool RootMaker::AddTracks(const edm::Event& iEvent)
 
 bool RootMaker::AddAK5CaloJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	int NumGood = 0;
-
-	edm::Handle<pat::JetCollection> ak5caloJets;
-	iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
-	if(ak5caloJets.isValid())
+  int NumGood = 0;
+  
+  edm::Handle<pat::JetCollection> ak5caloJets;
+  iEvent.getByLabel(edm::InputTag("patJetsAK5Calo"), ak5caloJets);
+  if(ak5caloJets.isValid())
+    {
+      for(unsigned i = 0 ; i < ak5caloJets->size() ; i++)
 	{
-		for(unsigned i = 0 ; i < ak5caloJets->size() ; i++)
+	  if((*ak5caloJets)[i].pt() >= cAK5CaloFilterPtMin)
+	    {
+	      ak5calojet_e[ak5calojet_count] = (*ak5caloJets)[i].energy();
+	      ak5calojet_px[ak5calojet_count] = (*ak5caloJets)[i].px();
+	      ak5calojet_py[ak5calojet_count] = (*ak5caloJets)[i].py();
+	      ak5calojet_pz[ak5calojet_count] = (*ak5caloJets)[i].pz();
+	      ak5calojet_hadronicenergy[ak5calojet_count] = (*ak5caloJets)[i].energyFractionHadronic() * (*ak5caloJets)[i].energy();
+	      ak5calojet_emenergy[ak5calojet_count] = (*ak5caloJets)[i].emEnergyFraction() * (*ak5caloJets)[i].energy();
+	      if((*ak5caloJets)[i].jecSetsAvailable())
 		{
-			if((*ak5caloJets)[i].pt() >= cAK5CaloFilterPtMin)
-			{
-				ak5calojet_e[ak5calojet_count] = (*ak5caloJets)[i].energy();
-				ak5calojet_px[ak5calojet_count] = (*ak5caloJets)[i].px();
-				ak5calojet_py[ak5calojet_count] = (*ak5caloJets)[i].py();
-				ak5calojet_pz[ak5calojet_count] = (*ak5caloJets)[i].pz();
-				ak5calojet_hadronicenergy[ak5calojet_count] = (*ak5caloJets)[i].energyFractionHadronic() * (*ak5caloJets)[i].energy();
-				ak5calojet_emenergy[ak5calojet_count] = (*ak5caloJets)[i].emEnergyFraction() * (*ak5caloJets)[i].energy();
-				if((*ak5caloJets)[i].jecSetsAvailable())
-				{
-					ak5calojet_energycorr[ak5calojet_count] = (*ak5caloJets)[i].jecFactor("Uncorrected");
-				}
-				else
-				{
-					ak5calojet_energycorr[ak5calojet_count] = -1.;
-				}
-				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
-				{
-					if(bdisclabel[n] != "F"){
-						ak5calojet_btag[ak5calojet_count][n] = (*ak5caloJets)[i].bDiscriminator(bdisclabel[n]);
-					}
-					else
-					{
-						ak5calojet_btag[ak5calojet_count][n] = -1000;
-					}
-				}
-
-				ak5calojet_fhpd[ak5calojet_count] = (*ak5caloJets)[i].jetID().fHPD;
-				ak5calojet_restrictedemf[ak5calojet_count] = (*ak5caloJets)[i].jetID().restrictedEMF;
-				/*for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++)
-				  {
-				  cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
-				  }*/
-				ak5calojet_n90[ak5calojet_count] = (*ak5caloJets)[i].n90();
-				ak5calojet_n60[ak5calojet_count] = (*ak5caloJets)[i].n60();
-				ak5calojet_count++;
-				if(ak5calojet_count == M_jetmaxcount){cerr << "number of ak5calojet > M_jetmaxcount. They are missing." << endl; errors |= 1<<8; break;}
-				if((*ak5caloJets)[i].pt() >= cAK5CaloPtMin && fabs((*ak5caloJets)[i].eta()) < cAK5CaloEtaMax) NumGood++;
-			}
+		  ak5calojet_energycorr[ak5calojet_count] = (*ak5caloJets)[i].jecFactor("Uncorrected");
 		}
+	      else
+		{
+		  ak5calojet_energycorr[ak5calojet_count] = -1.;
+		}
+	      for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+		{
+		  if(bdisclabel[n] != "F"){
+		    ak5calojet_btag[ak5calojet_count][n] = (*ak5caloJets)[i].bDiscriminator(bdisclabel[n]);
+		  }
+		  else
+		    {
+		      ak5calojet_btag[ak5calojet_count][n] = -1000;
+		    }
+		}
+	      
+	      ak5calojet_fhpd[ak5calojet_count] = (*ak5caloJets)[i].jetID().fHPD;
+	      ak5calojet_restrictedemf[ak5calojet_count] = (*ak5caloJets)[i].jetID().restrictedEMF;
+	      /*for(unsigned n = 0 ; n < min((*ak5caloJets)[i].getPairDiscri().size(), unsigned(M_btagmax)) ; n++)
+		{
+		cout << (*ak5caloJets)[i].getPairDiscri()[n].first << " " << (*ak5caloJets)[i].getPairDiscri()[n].second << " " << ak5calojet_btag[i][n] << endl;
+		}*/
+	      ak5calojet_n90[ak5calojet_count] = (*ak5caloJets)[i].n90();
+	      ak5calojet_n60[ak5calojet_count] = (*ak5caloJets)[i].n60();
+	      ak5calojet_count++;
+	      if(ak5calojet_count == M_jetmaxcount){cerr << "number of ak5calojet > M_jetmaxcount. They are missing." << endl; errors |= 1<<8; break;}
+	      if((*ak5caloJets)[i].pt() >= cAK5CaloPtMin && fabs((*ak5caloJets)[i].eta()) < cAK5CaloEtaMax) NumGood++;
+	    }
 	}
-	if(NumGood >= cAK5CaloNum) return(true);
-	return(false);
+    }
+  if(NumGood >= cAK5CaloNum) return(true);
+  return(false);
 }
 
 bool RootMaker::AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -4631,51 +3602,51 @@ bool RootMaker::AddAK5JPTJets(const edm::Event& iEvent, const edm::EventSetup& i
 	int NumGood = 0;
 
 	edm::Handle<pat::JetCollection> ak5jptJets;
-	iEvent.getByLabel(edm::InputTag("patJetsAK5JPT"), ak5jptJets);
+	iEvent.getByLabel(edm::InputTag("patJets"), ak5jptJets);
 	if(ak5jptJets.isValid())
 	{
-		for(unsigned i = 0 ; i < ak5jptJets->size() ; i++)
+	  for(unsigned i = 0 ; i < ak5jptJets->size() ; i++)
+	    {
+	      if((*ak5jptJets)[i].pt() >= cAK5JPTFilterPtMin)
 		{
-			if((*ak5jptJets)[i].pt() >= cAK5JPTFilterPtMin)
+		  ak5jptjet_e[ak5jptjet_count] = (*ak5jptJets)[i].energy();
+		  ak5jptjet_px[ak5jptjet_count] = (*ak5jptJets)[i].px();
+		  ak5jptjet_py[ak5jptjet_count] = (*ak5jptJets)[i].py();
+		  ak5jptjet_pz[ak5jptjet_count] = (*ak5jptJets)[i].pz();
+		  ak5jptjet_hadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy() + (*ak5jptJets)[i].neutralHadronEnergy();
+		  ak5jptjet_chargedhadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy();
+		  ak5jptjet_emenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy() + (*ak5jptJets)[i].neutralEmEnergy();
+		  ak5jptjet_chargedemenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy();
+		  ak5jptjet_chargedmulti[ak5jptjet_count] = (*ak5jptJets)[i].chargedMultiplicity();
+		  if((*ak5jptJets)[i].jecSetsAvailable())
+		    {
+		      ak5jptjet_energycorr[ak5jptjet_count] = (*ak5jptJets)[i].jecFactor("Uncorrected");
+		    }
+		  else
+		    {
+		      ak5jptjet_energycorr[ak5jptjet_count] = -1.;
+		    }
+		  for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
+		    {
+		      if(bdisclabel[n] != "F"){
+			ak5jptjet_btag[ak5jptjet_count][n] = (*ak5jptJets)[i].bDiscriminator(bdisclabel[n]);
+		      }
+		      else
 			{
-				ak5jptjet_e[ak5jptjet_count] = (*ak5jptJets)[i].energy();
-				ak5jptjet_px[ak5jptjet_count] = (*ak5jptJets)[i].px();
-				ak5jptjet_py[ak5jptjet_count] = (*ak5jptJets)[i].py();
-				ak5jptjet_pz[ak5jptjet_count] = (*ak5jptJets)[i].pz();
-				ak5jptjet_hadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy() + (*ak5jptJets)[i].neutralHadronEnergy();
-				ak5jptjet_chargedhadronicenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedHadronEnergy();
-				ak5jptjet_emenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy() + (*ak5jptJets)[i].neutralEmEnergy();
-				ak5jptjet_chargedemenergy[ak5jptjet_count] = (*ak5jptJets)[i].chargedEmEnergy();
-				ak5jptjet_chargedmulti[ak5jptjet_count] = (*ak5jptJets)[i].chargedMultiplicity();
-				if((*ak5jptJets)[i].jecSetsAvailable())
-				{
-					ak5jptjet_energycorr[ak5jptjet_count] = (*ak5jptJets)[i].jecFactor("Uncorrected");
-				}
-				else
-				{
-					ak5jptjet_energycorr[ak5jptjet_count] = -1.;
-				}
-				for(unsigned n = 0 ; n < bdisclabel.size() ; n++)
-				{
-					if(bdisclabel[n] != "F"){
-						ak5jptjet_btag[ak5jptjet_count][n] = (*ak5jptJets)[i].bDiscriminator(bdisclabel[n]);
-					}
-					else
-					{
-						ak5jptjet_btag[ak5jptjet_count][n] = -1000;
-					}
-				}
-
-				ak5jptjet_fhpd[ak5jptjet_count] = (*ak5jptJets)[i].jetID().fHPD;
-				ak5jptjet_restrictedemf[ak5jptjet_count] = (*ak5jptJets)[i].jetID().restrictedEMF;
-				ak5jptjet_n90[ak5jptjet_count] = (*ak5jptJets)[i].jetID().n90Hits;
-				ak5jptjet_count++;
-				if(ak5jptjet_count == M_jetmaxcount){cerr << "number of ak5jptjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<9; break;}
-				if((*ak5jptJets)[i].pt() >= cAK5JPTPtMin && fabs((*ak5jptJets)[i].eta()) < cAK5JPTEtaMax) NumGood++;
+			  ak5jptjet_btag[ak5jptjet_count][n] = -1000;
 			}
+		    }
+		  
+		  ak5jptjet_fhpd[ak5jptjet_count] = (*ak5jptJets)[i].jetID().fHPD;
+		  ak5jptjet_restrictedemf[ak5jptjet_count] = (*ak5jptJets)[i].jetID().restrictedEMF;
+		  ak5jptjet_n90[ak5jptjet_count] = (*ak5jptJets)[i].jetID().n90Hits;
+		  ak5jptjet_count++;
+		  if(ak5jptjet_count == M_jetmaxcount){cerr << "number of ak5jptjet > M_jetmaxcount. They are missing." << endl; errors |= 1<<9; break;}
+		  if((*ak5jptJets)[i].pt() >= cAK5JPTPtMin && fabs((*ak5jptJets)[i].eta()) < cAK5JPTEtaMax) NumGood++;
 		}
+	    }
 	}
-
+	
 	if(NumGood >= cAK5JPTNum) return(true);
 	return(false);
 }
@@ -5148,7 +4119,6 @@ Int_t RootMaker::getSuperCluster(float e, float x, float y, float z)
 }
 
 
-
 double RootMaker::ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, LorentzVector met, TMatrixD cov)
 {
   std::vector<NSVfitStandalone::MeasuredTauLepton> measuredTauLeptons;
@@ -5162,6 +4132,128 @@ double RootMaker::ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, Loren
   double diTauNSVfitMass_ = algo.getMass();
   return diTauNSVfitMass_;
 }
+
+
+TLorentzVector RootMaker::RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector Leg1p4_, LorentzVector Leg2p4_, const reco::GenParticle *boson_, string sampleName_, int nJets_)
+{
+  double newPfMetPt_ = pfMet_.pt(); 
+  double newPfMetPhi_ = pfMet_.phi();
+  LorentzVector genVisLeg1_(0, 0, 0, 0);
+  LorentzVector genVisLeg2_(0, 0, 0, 0);
+  LorentzVector diLepton_(0, 0, 0, 0);
+  LorentzVector finalLepLeg1_(0, 0, 0, 0);
+  LorentzVector finalLepLeg2_(0, 0, 0, 0);
+  
+  double u1 = 0; double u2 = 0;
+  
+  //case-I  
+  if(abs(boson_->pdgId()) == 23 ||  abs(boson_->pdgId()) ==25 || abs(boson_->pdgId()) ==35 || abs(boson_->pdgId()) == 36 ) {  // zjets
+    for(unsigned j = 0 ; j < boson_->numberOfDaughters() ; j++) {
+
+      const reco::Candidate *lepton = boson_->daughter(j);
+
+      //checking daugther
+      if(lepton->pdgId() == -15) { //for tau-
+	genVisLeg1_ = lepton->p4();
+	
+	//checking invisilbe decay
+	for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
+	  const reco::Candidate *daughter2 = lepton->daughter(k);
+	  int daughter2Id     = daughter2->pdgId();
+	  int daughter2Status = daughter2->status();
+	  
+	  if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
+	    genVisLeg1_ -= daughter2->p4();
+	} // k-loop
+      }// tau-
+      
+      if(lepton->pdgId() == +15) { //for tau+
+	genVisLeg1_ = lepton->p4();
+	
+	//checking invisilbe decay
+	for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
+	  const reco::Candidate *daughter2 = lepton->daughter(k);
+	  int daughter2Id     = daughter2->pdgId();
+	  int daughter2Status = daughter2->status();
+	  
+	  if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
+	    genVisLeg1_ -= daughter2->p4();
+	} // k-loop
+      }// tau+
+    } //#daughter
+    
+    // finalLeg1, finalLeg2  
+    if(genVisLeg1_.Pt() > 0) {
+      if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg1p4_) < 0.3)
+	finalLepLeg1_ = Leg1p4_;
+      else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg2p4_) < 0.3)
+	finalLepLeg1_ = Leg2p4_;
+      else
+	finalLepLeg1_ = genVisLeg1_;
+    }
+    
+    if(genVisLeg2_.Pt() > 0) {
+      if(ROOT::Math::VectorUtil::DeltaR(genVisLeg2_, Leg1p4_) < 0.3)
+	finalLepLeg2_ = Leg1p4_;
+      else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg2_, Leg2p4_) < 0.3)
+	finalLepLeg2_ = Leg2p4_;
+      else
+	finalLepLeg2_ = Leg2p4_;
+    }
+    
+    if(finalLepLeg1_.Pt() > 0 && finalLepLeg2_.Pt() > 0) 
+      diLepton_ = finalLepLeg1_ + finalLepLeg2_;
+    else diLepton_ = Leg1p4_ + Leg2p4_;
+  } //zjets 
+  
+  //case-II  
+  if(abs(boson_->pdgId()) == 24) {
+    for(unsigned j = 0 ; j < boson_->numberOfDaughters() ; j++) {
+      const reco::Candidate *lepton = boson_->daughter(j);
+      
+      //checking daugther
+      if(abs(lepton->pdgId()) == 15) { //for tau-/tau+
+	genVisLeg1_ = lepton->p4();
+	
+	//checking invisilbe decay
+	for(int k = 0; k < fabs(lepton->numberOfDaughters()); ++k) {
+	  const reco::Candidate *daughter2 = lepton->daughter(k);
+	  int daughter2Id     = daughter2->pdgId();
+	  int daughter2Status = daughter2->status();
+	  
+	  if((fabs(daughter2Id)==12 || fabs(daughter2Id)==14 || fabs(daughter2Id)==16) && daughter2Status==1 )
+	    genVisLeg1_ -= daughter2->p4();
+	} // k-loop
+      }// tau-/tau+
+      
+      else  if(abs(lepton->pdgId()) == 11 || abs(lepton->pdgId()) == 13) {  // ele, mu
+	genVisLeg1_ = lepton->p4();
+      }
+    } //#daughter
+    
+    // finalLeg1
+    if(genVisLeg1_.Pt() > 0){
+      if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg1p4_ ) < 0.3)
+	finalLepLeg1_ = Leg1p4_;
+      else if(ROOT::Math::VectorUtil::DeltaR(genVisLeg1_, Leg2p4_) < 0.3) 
+	finalLepLeg1_ = Leg2p4_;
+      else
+	finalLepLeg1_ = Leg1p4_;
+    }
+    
+    if(finalLepLeg1_.Pt() > 0) 
+      diLepton_ = finalLepLeg1_;
+    else diLepton_ = Leg1p4_;
+  } //Wjets 		      
+  
+  // TypeI Correction
+  TLorentzVector corMET_;
+  // cout<<"correctir _ : "<< corrector_ << endl;
+  corrector_->CorrectType1(newPfMetPt_,newPfMetPhi_, boson_->pt() , boson_->phi(), diLepton_.Pt(), diLepton_.Phi(), u1, u2 , 0 , 0, TMath::Min(nJets_,2) );
+  corMET_.SetPtEtaPhiM(newPfMetPt_, 0, newPfMetPhi_, 0);
+  return corMET_;
+}
+
 
 
 bool RootMaker::AddVertices(const edm::Event& iEvent)
