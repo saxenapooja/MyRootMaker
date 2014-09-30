@@ -455,8 +455,8 @@ void RecoilCorrector::metDistributionType1(double &iMet,double &iMPhi,double iGe
 			  -iU2MSZMCFit->Eval(iGenPt)*iU2MSZMCFit ->Eval(iGenPt),0.);
   pFrac1 = sqrt(pFrac1)*lRescale;
   pFrac2 = sqrt(pFrac2)*lRescale;
- 
-  //cout << "===> " << pU1 << " -- " << pFrac1 << " -- " << pFrac2 << " -- "  << iU1MSZDatFit->Eval(iGenPt) << " - " << iU1MSZMCFit->Eval(iGenPt) << endl;
+  
+  //  cout << "===> " << pU1 << " -- " << pFrac1 << " -- " << pFrac2 << " -- "  << iU1MSZDatFit->Eval(iGenPt) << " - " << iU1MSZMCFit->Eval(iGenPt) << endl;
   
   //Uncertainty propagation
   if(iFluc != 0 || iScale != 0) { 
@@ -488,6 +488,8 @@ void RecoilCorrector::metDistributionType1(double &iMet,double &iMPhi,double iGe
   iMPhi = calculate(1,iLepPt,iLepPhi,iGenPhi,pU1,pU2);
   iU1   = pU1; 
   iU2   = pU2;
+  //  cout<<"iMet :"<< iMet <<", "<< iMPhi << endl;
+  
   return;
 }
 double RecoilCorrector::diGausPVal(double iVal,double iFrac,double iSigma1,double iSigma2) { 

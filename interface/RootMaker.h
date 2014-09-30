@@ -11,6 +11,11 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include <Math/Vector3D.h>
+#include "Math/LorentzVector.h"
+#include "Math/Point3D.h"
+
+
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -124,10 +129,12 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "TauAnalysis/CandidateTools/interface/NSVfitStandaloneAlgorithm.h"
 
 #include "Muon/MuonAnalysisTools/interface/MuonMVAEstimator.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
-
+//#include "MyRootMaker/MyRootMaker/interface/MEtRecoilCorrection.h"
+#include "MyRootMaker/MyRootMaker/interface/RecoilCorrector.hh"
 using namespace std;
 using namespace reco;
 
@@ -153,6 +160,7 @@ using namespace reco;
 #define M_btagmax 6
 #define M_svmax 5
 typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> Point3D;
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 bool doDebug = false;
 class RootMaker : public edm::EDAnalyzer{ 
@@ -193,6 +201,8 @@ class RootMaker : public edm::EDAnalyzer{
   Int_t HasAnyMother(const GenParticle* particle, int id);
   math::XYZPoint PositionOnECalSurface(reco::TransientTrack&);
   Int_t getSuperCluster(float e, float x, float y, float z);
+  double ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, LorentzVector met, TMatrixD cov);
+  TLorentzVector RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector Leg1p4_, LorentzVector Leg2p4_, const reco::GenParticle *boson_, string sampleName_, int nJets_);
   
   struct DCA {
     float dca2d;
@@ -272,6 +282,8 @@ class RootMaker : public edm::EDAnalyzer{
   double cAK5PFFilterPtMin;
   double cAK5PFPtMin;
   double cAK5PFEtaMax;
+  double cAK5PFPt4RC;
+  double cAK5PFEta4RC;
   vector<string> cJetHLTriggerMatching;
   int cAK5PFNum;
   
@@ -283,16 +295,20 @@ class RootMaker : public edm::EDAnalyzer{
   double cLambdaMassWindow;
 
   unsigned int cYear;
-  std::string cPeriod;
   unsigned int cSkim;
+  std::string cPeriod;
+  std::string sampleName;
   int diTauCounter;  
+
   //Variables
-  edm::ESHandle<TransientTrackBuilder> TTrackBuilder         ;
-  edm::ESHandle<MagneticField>         magneticField         ; 
-  Cylinder::ConstCylinderPointer       ecalBarrel            ;
-  Plane::ConstPlanePointer             ecalNegativeEtaEndcap ;
-  Plane::ConstPlanePointer             ecalPositiveEtaEndcap ;
-  PropagatorWithMaterial*              propagatorWithMaterial;
+  edm::ESHandle<TransientTrackBuilder>  TTrackBuilder         ;
+  edm::ESHandle<MagneticField>          magneticField         ; 
+  Cylinder::ConstCylinderPointer        ecalBarrel            ;
+  Plane::ConstPlanePointer              ecalNegativeEtaEndcap ;
+  Plane::ConstPlanePointer              ecalPositiveEtaEndcap ;
+  PropagatorWithMaterial*               propagatorWithMaterial; 
+  //  MEtRecoilCorrection *                 metRecCorr; 
+  RecoilCorrector *                     corrector_ ;  
   
   HLTConfigProvider HLTConfiguration;
   edm::Handle<edm::TriggerResults> HLTrigger;
@@ -319,6 +335,8 @@ class RootMaker : public edm::EDAnalyzer{
   //EGammaMvaEleEstimator <fElectronIsoMVA;
 
   //Data		
+  Int_t njets4RC;
+
   UInt_t errors;
   UInt_t event_nr;
   UInt_t event_luminosityblock;
@@ -418,6 +436,11 @@ class RootMaker : public edm::EDAnalyzer{
   Float_t ditau_leg2_X_OPV[M_taumaxcount];
   Float_t ditau_leg2_Y_OPV[M_taumaxcount];
   Float_t ditau_leg2_Z_OPV[M_taumaxcount];
+  Double_t diTauSVFitMass[M_taumaxcount];
+  Float_t diTau_RecCorr_Px[M_taumaxcount];
+  Float_t diTau_RecCorr_Py[M_taumaxcount];
+  Float_t diTau_RecCorr_Pz[M_taumaxcount];
+  Float_t diTau_RecCorr_E[M_taumaxcount];
 
 
   UInt_t supercluster_count;
@@ -767,29 +790,29 @@ class RootMaker : public edm::EDAnalyzer{
   Int_t tau_charge[M_taumaxcount];
   ULong64_t tau_dishps[M_taumaxcount];
 
-  Float_t tau_againstelectronmva5raw[M_taumaxcount];
-  Float_t tau_byIsolationmva3newDMwoLTraw[M_taumaxcount];
-  Float_t tau_byIsolationmva3newDMwLTraw[M_taumaxcount];
-  Float_t tau_againstelectronmva5[M_taumaxcount];
-  Float_t tau_againstelectronVLoosemva5[M_taumaxcount];
-  Float_t tau_againstelectronLoosemva5[M_taumaxcount];
-  Float_t tau_againstelectronMediummva5[M_taumaxcount];
-  Float_t tau_againstelectronTightmva5[M_taumaxcount];
-  Float_t tau_againstelectronDeadECAL[M_taumaxcount];
-  Float_t tau_againstelectronmva5category[M_taumaxcount];
-  Float_t tau_bycombinedisolationdeltabetacorrraw3hits[M_taumaxcount];
-  Float_t tau_hpsMVA3oldDMwLT[M_taumaxcount];
-  Float_t tau_hpsMVA3oldDMwoLT[M_taumaxcount];
-  Int_t   tau_tightestAntiMu3WP[M_taumaxcount];
-  Int_t   tau_tightestAntiEleWP[M_taumaxcount];
-  Int_t   tau_tightestAntiMu2WP[M_taumaxcount];
-  Int_t   tau_tightestHPSMVA3oldDMwoLTWP[M_taumaxcount];
-  //  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount];
-  Int_t   tau_tightestHPSMVA3newDMwLTWP[M_taumaxcount];
-  Int_t   tau_tightestHPSMVA3newDMwoLTWP[M_taumaxcount];
-  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount];
-  Int_t   tau_tightestAntiMuWP[M_taumaxcount];
-  Int_t   tau_tightestAntiMuMVAWP[M_taumaxcount];
+/*   Float_t tau_againstelectronmva5raw[M_taumaxcount]; */
+/*   Float_t tau_byIsolationmva3newDMwoLTraw[M_taumaxcount]; */
+/*   Float_t tau_byIsolationmva3newDMwLTraw[M_taumaxcount]; */
+/*   Float_t tau_againstelectronmva5[M_taumaxcount]; */
+/*   Float_t tau_againstelectronVLoosemva5[M_taumaxcount]; */
+/*   Float_t tau_againstelectronLoosemva5[M_taumaxcount]; */
+/*   Float_t tau_againstelectronMediummva5[M_taumaxcount]; */
+/*   Float_t tau_againstelectronTightmva5[M_taumaxcount]; */
+/*   Float_t tau_againstelectronDeadECAL[M_taumaxcount]; */
+/*   Float_t tau_againstelectronmva5category[M_taumaxcount]; */
+/*   Float_t tau_bycombinedisolationdeltabetacorrraw3hits[M_taumaxcount]; */
+/*   Float_t tau_hpsMVA3oldDMwLT[M_taumaxcount]; */
+/*   Float_t tau_hpsMVA3oldDMwoLT[M_taumaxcount]; */
+/*   Int_t   tau_tightestAntiMu3WP[M_taumaxcount]; */
+/*   Int_t   tau_tightestAntiEleWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestAntiMu2WP[M_taumaxcount]; */
+/*   Int_t   tau_tightestHPSMVA3oldDMwoLTWP[M_taumaxcount]; */
+/*   //  Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestHPSMVA3newDMwLTWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestHPSMVA3newDMwoLTWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestHPSMVA3oldDMwLTWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestAntiMuWP[M_taumaxcount]; */
+/*   Int_t   tau_tightestAntiMuMVAWP[M_taumaxcount]; */
 
 
   Float_t tau_emfraction[M_taumaxcount];
