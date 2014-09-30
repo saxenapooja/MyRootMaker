@@ -39,7 +39,13 @@ process.source = cms.Source("PoolSource",
 #	"/store/data/Run2012D/BJetPlusX/AOD/PromptReco-v1/000/203/773/C8EEC2FC-5E0A-E211-8058-001D09F26509.root"
 #	"/store/data/Run2011A/DoubleElectron/AOD/PromptReco-v1/000/161/008/8468EAFF-C855-E011-BB51-003048F117B4.root"
 #/pnfs/desy.de/cms/tier2/store/mc/Summer12_DR53X/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/52ACA0C7-53E9-E111-A786-002618943919.root
-	"/store/mc/Summer12_DR53X/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/52ACA0C7-53E9-E111-A786-002618943919.root"
+	#GluGluToH
+#	"/store/mc/Summer12_DR53X/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/52ACA0C7-53E9-E111-A786-002618943919.root",
+#	"/store/mc/Summer12_DR53X/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/AC280D49-80E9-E111-BE5C-002618943864.root",
+#	"/store/mc/Summer12_DR53X/GluGluToHToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/96DD26F6-65E9-E111-A880-0026189437EB.root"
+
+	#
+	"/store/mc/Summer12_DR53X/VBF_HToTauTau_M-125_8TeV-powheg-pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/A48BF898-AEED-E111-A177-0017A4770C38.root"
 #     'file:pickevents.root'
 	)
 #     noEventSort = cms.untracked.bool(True),
@@ -47,7 +53,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(10)
 )
 
 # Load various tools before PAT
@@ -329,6 +335,7 @@ GenMet = cms.untracked.bool(not isData),
 Year = cms.untracked.uint32(year),
 Period = cms.untracked.string(period),
 Skim = cms.untracked.uint32(skim),
+SampleName = cms.untracked.string("Higgs"),  #ZJets,WJets,Higgs
 TrackCollectionTag = cms.InputTag("generalTracks"),
 PVTag = cms.InputTag("offlinePrimaryVerticesWithBS"),
 Trigger = cms.untracked.bool(True),
@@ -522,8 +529,10 @@ RecJetHLTriggerMatching = cms.untracked.vstring(
 
 RecAK5PFPtMin = cms.untracked.double(20.),
 RecAK5PFEtaMax = cms.untracked.double(2.4),
+
 RecAK5PFNum = cms.untracked.int32(100000),
 RecAK5PFFilterPtMin = cms.untracked.double(10.),
+
 ## only for MuOnia
 RecSecVertices = cms.untracked.bool(False),
 RecVertexTRKChi2 = cms.untracked.double(5),
@@ -539,6 +548,9 @@ RecAllConversion = cms.untracked.bool(False),
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string('GluGluToHToTauTau_M-125_full.root')
 )
+#jet selection for recoil Correction
+RecAK5PFPtMin4RC = cms.untracked.double(30.),
+RecAK5PFEtaMin4RC =  cms.untracked.double(2.4),
 
 # Re-run tau ID algorithms so that discrimintors required for PAT taus are
 # created which might not exist in AOD (yet).
