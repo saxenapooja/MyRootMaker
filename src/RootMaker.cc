@@ -272,45 +272,45 @@ void RootMaker::beginJob(){
   tree->Branch("primvertex_ntracks", &primvertex_ntracks, "primvertex_ntracks/I");
   tree->Branch("primvertex_cov", primvertex_cov, "primvertex_cov[6]/F");
   
-  tree->Branch("supercluster_count", &supercluster_count, "supercluster_count/i");
-  tree->Branch("supercluster_e", supercluster_e, "supercluster_e[supercluster_count]/F");
-  tree->Branch("supercluster_x", supercluster_x, "supercluster_x[supercluster_count]/F");
-  tree->Branch("supercluster_y", supercluster_y, "supercluster_y[supercluster_count]/F");
-  tree->Branch("supercluster_z", supercluster_z, "supercluster_z[supercluster_count]/F");
-  tree->Branch("supercluster_rawe", supercluster_rawe, "supercluster_rawe[supercluster_count]/F");
-  tree->Branch("supercluster_phiwidth", supercluster_phiwidth, "supercluster_phiwidth[supercluster_count]/F");
-  tree->Branch("supercluster_etawidth", supercluster_etawidth, "supercluster_etawidth[supercluster_count]/F");
-  tree->Branch("supercluster_nbasiccluster", supercluster_nbasiccluster, "supercluster_nbasiccluster[supercluster_count]/I");
-  tree->Branch("supercluster_basicclusterbegin", supercluster_basicclusterbegin, "supercluster_basicclusterbegin[supercluster_count]/I");
-  tree->Branch("supercluster_esclusterbegin", supercluster_esclusterbegin, "supercluster_esclusterbegin[supercluster_count]/I");
+//   tree->Branch("supercluster_count", &supercluster_count, "supercluster_count/i");
+//   tree->Branch("supercluster_e", supercluster_e, "supercluster_e[supercluster_count]/F");
+//   tree->Branch("supercluster_x", supercluster_x, "supercluster_x[supercluster_count]/F");
+//   tree->Branch("supercluster_y", supercluster_y, "supercluster_y[supercluster_count]/F");
+//   tree->Branch("supercluster_z", supercluster_z, "supercluster_z[supercluster_count]/F");
+//   tree->Branch("supercluster_rawe", supercluster_rawe, "supercluster_rawe[supercluster_count]/F");
+//   tree->Branch("supercluster_phiwidth", supercluster_phiwidth, "supercluster_phiwidth[supercluster_count]/F");
+//   tree->Branch("supercluster_etawidth", supercluster_etawidth, "supercluster_etawidth[supercluster_count]/F");
+//   tree->Branch("supercluster_nbasiccluster", supercluster_nbasiccluster, "supercluster_nbasiccluster[supercluster_count]/I");
+//   tree->Branch("supercluster_basicclusterbegin", supercluster_basicclusterbegin, "supercluster_basicclusterbegin[supercluster_count]/I");
+//   tree->Branch("supercluster_esclusterbegin", supercluster_esclusterbegin, "supercluster_esclusterbegin[supercluster_count]/I");
   
-  tree->Branch("supercluster_basiccluster_count", &supercluster_basiccluster_count, "supercluster_basiccluster_count/i");
-  tree->Branch("supercluster_basiccluster_e", supercluster_basiccluster_e, "supercluster_basiccluster_e[supercluster_basiccluster_count]/F");
-  tree->Branch("supercluster_basiccluster_x", supercluster_basiccluster_x, "supercluster_basiccluster_x[supercluster_basiccluster_count]/F");
-  tree->Branch("supercluster_basiccluster_y", supercluster_basiccluster_y, "supercluster_basiccluster_y[supercluster_basiccluster_count]/F");
-  tree->Branch("supercluster_basiccluster_z", supercluster_basiccluster_z, "supercluster_basiccluster_z[supercluster_basiccluster_count]/F");
-  tree->Branch("supercluster_basiccluster_nhit", supercluster_basiccluster_nhit, "supercluster_basiccluster_nhit[supercluster_basiccluster_count]/I");
-  tree->Branch("supercluster_basiccluster_hitbegin", supercluster_basiccluster_hitbegin, "supercluster_basiccluster_hitbegin[supercluster_basiccluster_count]/I");
+//   tree->Branch("supercluster_basiccluster_count", &supercluster_basiccluster_count, "supercluster_basiccluster_count/i");
+//   tree->Branch("supercluster_basiccluster_e", supercluster_basiccluster_e, "supercluster_basiccluster_e[supercluster_basiccluster_count]/F");
+//   tree->Branch("supercluster_basiccluster_x", supercluster_basiccluster_x, "supercluster_basiccluster_x[supercluster_basiccluster_count]/F");
+//   tree->Branch("supercluster_basiccluster_y", supercluster_basiccluster_y, "supercluster_basiccluster_y[supercluster_basiccluster_count]/F");
+//   tree->Branch("supercluster_basiccluster_z", supercluster_basiccluster_z, "supercluster_basiccluster_z[supercluster_basiccluster_count]/F");
+//   tree->Branch("supercluster_basiccluster_nhit", supercluster_basiccluster_nhit, "supercluster_basiccluster_nhit[supercluster_basiccluster_count]/I");
+//   tree->Branch("supercluster_basiccluster_hitbegin", supercluster_basiccluster_hitbegin, "supercluster_basiccluster_hitbegin[supercluster_basiccluster_count]/I");
   
-  tree->Branch("supercluster_basiccluster_hit_count", &supercluster_basiccluster_hit_count, "supercluster_basiccluster_hit_count/i");
-  tree->Branch("supercluster_basiccluster_hit_e", supercluster_basiccluster_hit_e, "supercluster_basiccluster_hit_e[supercluster_basiccluster_hit_count]/F");
-  tree->Branch("supercluster_basiccluster_hit_x", supercluster_basiccluster_hit_x, "supercluster_basiccluster_hit_x[supercluster_basiccluster_hit_count]/F");
-  tree->Branch("supercluster_basiccluster_hit_y", supercluster_basiccluster_hit_y, "supercluster_basiccluster_hit_y[supercluster_basiccluster_hit_count]/F");
-  tree->Branch("supercluster_basiccluster_hit_z", supercluster_basiccluster_hit_z, "supercluster_basiccluster_hit_z[supercluster_basiccluster_hit_count]/F");
+//   tree->Branch("supercluster_basiccluster_hit_count", &supercluster_basiccluster_hit_count, "supercluster_basiccluster_hit_count/i");
+//   tree->Branch("supercluster_basiccluster_hit_e", supercluster_basiccluster_hit_e, "supercluster_basiccluster_hit_e[supercluster_basiccluster_hit_count]/F");
+//   tree->Branch("supercluster_basiccluster_hit_x", supercluster_basiccluster_hit_x, "supercluster_basiccluster_hit_x[supercluster_basiccluster_hit_count]/F");
+//   tree->Branch("supercluster_basiccluster_hit_y", supercluster_basiccluster_hit_y, "supercluster_basiccluster_hit_y[supercluster_basiccluster_hit_count]/F");
+//   tree->Branch("supercluster_basiccluster_hit_z", supercluster_basiccluster_hit_z, "supercluster_basiccluster_hit_z[supercluster_basiccluster_hit_count]/F");
   
-  tree->Branch("supercluster_escluster_count", &supercluster_escluster_count, "supercluster_escluster_count/i");
-  tree->Branch("supercluster_escluster_e", supercluster_escluster_e, "supercluster_escluster_e[supercluster_escluster_count]/F");
-  tree->Branch("supercluster_escluster_x", supercluster_escluster_x, "supercluster_escluster_x[supercluster_escluster_count]/F");
-  tree->Branch("supercluster_escluster_y", supercluster_escluster_y, "supercluster_escluster_y[supercluster_escluster_count]/F");
-  tree->Branch("supercluster_escluster_z", supercluster_escluster_z, "supercluster_escluster_z[supercluster_escluster_count]/F");
-  tree->Branch("supercluster_escluster_nhit", supercluster_escluster_nhit, "supercluster_escluster_nhit[supercluster_escluster_count]/I");
-  tree->Branch("supercluster_escluster_hitbegin", supercluster_escluster_hitbegin, "supercluster_escluster_hitbegin[supercluster_escluster_count]/I");
+//   tree->Branch("supercluster_escluster_count", &supercluster_escluster_count, "supercluster_escluster_count/i");
+//   tree->Branch("supercluster_escluster_e", supercluster_escluster_e, "supercluster_escluster_e[supercluster_escluster_count]/F");
+//   tree->Branch("supercluster_escluster_x", supercluster_escluster_x, "supercluster_escluster_x[supercluster_escluster_count]/F");
+//   tree->Branch("supercluster_escluster_y", supercluster_escluster_y, "supercluster_escluster_y[supercluster_escluster_count]/F");
+//   tree->Branch("supercluster_escluster_z", supercluster_escluster_z, "supercluster_escluster_z[supercluster_escluster_count]/F");
+//   tree->Branch("supercluster_escluster_nhit", supercluster_escluster_nhit, "supercluster_escluster_nhit[supercluster_escluster_count]/I");
+//   tree->Branch("supercluster_escluster_hitbegin", supercluster_escluster_hitbegin, "supercluster_escluster_hitbegin[supercluster_escluster_count]/I");
   
-  tree->Branch("supercluster_escluster_hit_count", &supercluster_escluster_hit_count, "supercluster_escluster_hit_count/i");
-  tree->Branch("supercluster_escluster_hit_e", supercluster_escluster_hit_e, "supercluster_escluster_hit_e[supercluster_escluster_hit_count]/F");
-  tree->Branch("supercluster_escluster_hit_x", supercluster_escluster_hit_x, "supercluster_escluster_hit_x[supercluster_escluster_hit_count]/F");
-  tree->Branch("supercluster_escluster_hit_y", supercluster_escluster_hit_y, "supercluster_escluster_hit_y[supercluster_escluster_hit_count]/F");
-  tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
+//   tree->Branch("supercluster_escluster_hit_count", &supercluster_escluster_hit_count, "supercluster_escluster_hit_count/i");
+//   tree->Branch("supercluster_escluster_hit_e", supercluster_escluster_hit_e, "supercluster_escluster_hit_e[supercluster_escluster_hit_count]/F");
+//   tree->Branch("supercluster_escluster_hit_x", supercluster_escluster_hit_x, "supercluster_escluster_hit_x[supercluster_escluster_hit_count]/F");
+//   tree->Branch("supercluster_escluster_hit_y", supercluster_escluster_hit_y, "supercluster_escluster_hit_y[supercluster_escluster_hit_count]/F");
+//   tree->Branch("supercluster_escluster_hit_z", supercluster_escluster_hit_z, "supercluster_escluster_hit_z[supercluster_escluster_hit_count]/F");
   
   tree->Branch("muon_count", &muon_count, "muon_count/i");
   tree->Branch("muon_px", muon_px, "muon_px[muon_count]/F");
@@ -374,19 +374,19 @@ void RootMaker::beginJob(){
   tree->Branch("muon_mva_id", muon_mva_id, "muon_mva_id[muon_count]/F");
   tree->Branch("muon_mva_iso", muon_mva_iso, "muon_mva_iso[muon_count]/F");
   
-  tree->Branch("ak5calojet_count", &ak5calojet_count, "ak5calojet_count/i");
-  tree->Branch("ak5calojet_e", ak5calojet_e, "ak5calojet_e[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_px", ak5calojet_px, "ak5calojet_px[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_py", ak5calojet_py, "ak5calojet_py[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_pz", ak5calojet_pz, "ak5calojet_pz[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_hadronicenergy", ak5calojet_hadronicenergy, "ak5calojet_hadronicenergy[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_emenergy", ak5calojet_emenergy, "ak5calojet_emenergy[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_energycorr", ak5calojet_energycorr, "ak5calojet_energycorr[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_fhpd", ak5calojet_fhpd, "ak5calojet_fhpd[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_restrictedemf", ak5calojet_restrictedemf, "ak5calojet_restrictedemf[ak5calojet_count]/F");
-  tree->Branch("ak5calojet_btag", ak5calojet_btag, "ak5calojet_btag[ak5calojet_count][6]/F");
-  tree->Branch("ak5calojet_n90", ak5calojet_n90, "ak5calojet_n90[ak5calojet_count]/i");
-  tree->Branch("ak5calojet_n60", ak5calojet_n60, "ak5calojet_n60[ak5calojet_count]/i");
+//   tree->Branch("ak5calojet_count", &ak5calojet_count, "ak5calojet_count/i");
+//   tree->Branch("ak5calojet_e", ak5calojet_e, "ak5calojet_e[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_px", ak5calojet_px, "ak5calojet_px[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_py", ak5calojet_py, "ak5calojet_py[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_pz", ak5calojet_pz, "ak5calojet_pz[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_hadronicenergy", ak5calojet_hadronicenergy, "ak5calojet_hadronicenergy[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_emenergy", ak5calojet_emenergy, "ak5calojet_emenergy[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_energycorr", ak5calojet_energycorr, "ak5calojet_energycorr[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_fhpd", ak5calojet_fhpd, "ak5calojet_fhpd[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_restrictedemf", ak5calojet_restrictedemf, "ak5calojet_restrictedemf[ak5calojet_count]/F");
+//   tree->Branch("ak5calojet_btag", ak5calojet_btag, "ak5calojet_btag[ak5calojet_count][6]/F");
+//   tree->Branch("ak5calojet_n90", ak5calojet_n90, "ak5calojet_n90[ak5calojet_count]/i");
+//   tree->Branch("ak5calojet_n60", ak5calojet_n60, "ak5calojet_n60[ak5calojet_count]/i");
   
   tree->Branch("ak5jptjet_count", &ak5jptjet_count, "ak5jptjet_count/i");
   tree->Branch("ak5jptjet_e", ak5jptjet_e, "ak5jptjet_e[ak5jptjet_count]/F");
@@ -711,49 +711,49 @@ void RootMaker::beginJob(){
   tree->Branch("diTau_RecCorr_Pz", diTau_RecCorr_Pz,"diTau_RecCorr_Pz[ditau_Index]/F");
   tree->Branch("diTau_RecCorr_E", diTau_RecCorr_E,"diTau_RecCorr_E[ditau_Index]/F");
 
-  tree->Branch("mutautaupair_count", &mutautaupair_count, "mutautaupair_count/i");
-  tree->Branch("mutautaupair_leg1_px", mutautaupair_leg1_px, "mutautaupair_leg1_px[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg1_py", mutautaupair_leg1_py, "mutautaupair_leg1_py[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg1_pz", mutautaupair_leg1_pz, "mutautaupair_leg1_pz[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg1_energy", mutautaupair_leg1_energy, "mutautaupair_leg1_energy[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg2_px", mutautaupair_leg2_px, "mutautaupair_leg2_px[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg2_py", mutautaupair_leg2_py, "mutautaupair_leg2_py[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg2_pz", mutautaupair_leg2_pz, "mutautaupair_leg2_pz[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_leg2_energy", mutautaupair_leg2_energy, "mutautaupair_leg2_energy[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_mu_px", mutautaupair_mu_px, "mutautaupair_mu_px[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_mu_py", mutautaupair_mu_py, "mutautaupair_mu_py[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_mu_pz", mutautaupair_mu_pz, "mutautaupair_mu_pz[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_mu_energy", mutautaupair_mu_energy, "mutautaupair_mu_energy[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_svfit_int_valid", mutautaupair_svfit_int_valid, "mutautaupair_svfit_int_valid[mutautaupair_count]/O");
-  tree->Branch("mutautaupair_svfit_mass_int", mutautaupair_svfit_mass_int, "mutautaupair_svfit_mass_int[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_svfit_mass_int_err_up", mutautaupair_svfit_mass_int_err_up, "mutautaupair_svfit_mass_int_err_up[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_svfit_mass_int_err_down", mutautaupair_svfit_mass_int_err_down, "mutautaupair_svfit_mass_int_err_down[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_dca2d", mutautaupair_dca2d, "mutautaupair_dca2d[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_dca2d_err", mutautaupair_dca2d_err, "mutautaupair_dca2d_err[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_dca3d", mutautaupair_dca3d, "mutautaupair_dca3d[mutautaupair_count]/F");
-  tree->Branch("mutautaupair_dca3d_err", mutautaupair_dca3d_err, "mutautaupair_dca3d_err[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_count", &mutautaupair_count, "mutautaupair_count/i");
+//   tree->Branch("mutautaupair_leg1_px", mutautaupair_leg1_px, "mutautaupair_leg1_px[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg1_py", mutautaupair_leg1_py, "mutautaupair_leg1_py[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg1_pz", mutautaupair_leg1_pz, "mutautaupair_leg1_pz[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg1_energy", mutautaupair_leg1_energy, "mutautaupair_leg1_energy[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg2_px", mutautaupair_leg2_px, "mutautaupair_leg2_px[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg2_py", mutautaupair_leg2_py, "mutautaupair_leg2_py[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg2_pz", mutautaupair_leg2_pz, "mutautaupair_leg2_pz[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_leg2_energy", mutautaupair_leg2_energy, "mutautaupair_leg2_energy[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_mu_px", mutautaupair_mu_px, "mutautaupair_mu_px[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_mu_py", mutautaupair_mu_py, "mutautaupair_mu_py[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_mu_pz", mutautaupair_mu_pz, "mutautaupair_mu_pz[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_mu_energy", mutautaupair_mu_energy, "mutautaupair_mu_energy[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_svfit_int_valid", mutautaupair_svfit_int_valid, "mutautaupair_svfit_int_valid[mutautaupair_count]/O");
+//   tree->Branch("mutautaupair_svfit_mass_int", mutautaupair_svfit_mass_int, "mutautaupair_svfit_mass_int[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_svfit_mass_int_err_up", mutautaupair_svfit_mass_int_err_up, "mutautaupair_svfit_mass_int_err_up[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_svfit_mass_int_err_down", mutautaupair_svfit_mass_int_err_down, "mutautaupair_svfit_mass_int_err_down[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_dca2d", mutautaupair_dca2d, "mutautaupair_dca2d[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_dca2d_err", mutautaupair_dca2d_err, "mutautaupair_dca2d_err[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_dca3d", mutautaupair_dca3d, "mutautaupair_dca3d[mutautaupair_count]/F");
+//   tree->Branch("mutautaupair_dca3d_err", mutautaupair_dca3d_err, "mutautaupair_dca3d_err[mutautaupair_count]/F");
   
-  tree->Branch("eltautaupair_count", &eltautaupair_count, "eltautaupair_count/i");
-  tree->Branch("eltautaupair_leg1_px", eltautaupair_leg1_px, "eltautaupair_leg1_px[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg1_py", eltautaupair_leg1_py, "eltautaupair_leg1_py[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg1_pz", eltautaupair_leg1_pz, "eltautaupair_leg1_pz[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg1_energy", eltautaupair_leg1_energy, "eltautaupair_leg1_energy[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg2_px", eltautaupair_leg2_px, "eltautaupair_leg2_px[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg2_py", eltautaupair_leg2_py, "eltautaupair_leg2_py[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg2_pz", eltautaupair_leg2_pz, "eltautaupair_leg2_pz[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_leg2_energy", eltautaupair_leg2_energy, "eltautaupair_leg2_energy[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_el_px", eltautaupair_el_px, "eltautaupair_el_px[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_el_py", eltautaupair_el_py, "eltautaupair_el_py[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_el_pz", eltautaupair_el_pz, "eltautaupair_el_pz[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_el_energy", eltautaupair_el_energy, "eltautaupair_el_energy[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_svfit_int_valid", eltautaupair_svfit_int_valid, "eltautaupair_svfit_int_valid[eltautaupair_count]/O");
-  tree->Branch("eltautaupair_svfit_mass_int", eltautaupair_svfit_mass_int, "eltautaupair_svfit_mass_int[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_svfit_mass_int_err_up", eltautaupair_svfit_mass_int_err_up, "eltautaupair_svfit_mass_int_err_up[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_svfit_mass_int_err_down", eltautaupair_svfit_mass_int_err_down, "eltautaupair_svfit_mass_int_err_down[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_dca2d", eltautaupair_dca2d, "eltautaupair_dca2d[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_dca2d_err", eltautaupair_dca2d_err, "eltautaupair_dca2d_err[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_dca3d", eltautaupair_dca3d, "eltautaupair_dca3d[eltautaupair_count]/F");
-  tree->Branch("eltautaupair_dca3d_err", eltautaupair_dca3d_err, "eltautaupair_dca3d_err[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_count", &eltautaupair_count, "eltautaupair_count/i");
+//   tree->Branch("eltautaupair_leg1_px", eltautaupair_leg1_px, "eltautaupair_leg1_px[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg1_py", eltautaupair_leg1_py, "eltautaupair_leg1_py[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg1_pz", eltautaupair_leg1_pz, "eltautaupair_leg1_pz[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg1_energy", eltautaupair_leg1_energy, "eltautaupair_leg1_energy[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg2_px", eltautaupair_leg2_px, "eltautaupair_leg2_px[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg2_py", eltautaupair_leg2_py, "eltautaupair_leg2_py[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg2_pz", eltautaupair_leg2_pz, "eltautaupair_leg2_pz[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_leg2_energy", eltautaupair_leg2_energy, "eltautaupair_leg2_energy[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_el_px", eltautaupair_el_px, "eltautaupair_el_px[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_el_py", eltautaupair_el_py, "eltautaupair_el_py[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_el_pz", eltautaupair_el_pz, "eltautaupair_el_pz[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_el_energy", eltautaupair_el_energy, "eltautaupair_el_energy[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_svfit_int_valid", eltautaupair_svfit_int_valid, "eltautaupair_svfit_int_valid[eltautaupair_count]/O");
+//   tree->Branch("eltautaupair_svfit_mass_int", eltautaupair_svfit_mass_int, "eltautaupair_svfit_mass_int[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_svfit_mass_int_err_up", eltautaupair_svfit_mass_int_err_up, "eltautaupair_svfit_mass_int_err_up[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_svfit_mass_int_err_down", eltautaupair_svfit_mass_int_err_down, "eltautaupair_svfit_mass_int_err_down[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_dca2d", eltautaupair_dca2d, "eltautaupair_dca2d[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_dca2d_err", eltautaupair_dca2d_err, "eltautaupair_dca2d_err[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_dca3d", eltautaupair_dca3d, "eltautaupair_dca3d[eltautaupair_count]/F");
+//   tree->Branch("eltautaupair_dca3d_err", eltautaupair_dca3d_err, "eltautaupair_dca3d_err[eltautaupair_count]/F");
   
   tree->Branch("tau_ak5pfjet_e", tau_ak5pfjet_e, "tau_ak5pfjet_e[tau_count]/F");
   tree->Branch("tau_ak5pfjet_px", tau_ak5pfjet_px, "tau_ak5pfjet_px[tau_count]/F");
@@ -783,6 +783,7 @@ void RootMaker::beginJob(){
   tree->Branch("tau_charged_npixelhits", tau_charged_npixelhits, "tau_charged_npixelhits[tau_charged_count]/b");
   tree->Branch("tau_charged_npixellayers", tau_charged_npixellayers, "tau_charged_npixellayers[tau_charged_count]/b");
   tree->Branch("tau_charged_nstriplayers", tau_charged_nstriplayers, "tau_charged_nstriplayers[tau_charged_count]/b");
+  tree->Branch("run_taudiscriminators", run_taudiscriminators, "run_taudiscriminators/C");
   
   tree->Branch("ak5pfjet_rho", &ak5pfjet_rho, "ak5pfjet_rho/F");
   tree->Branch("ak5pfjet_sigma", &ak5pfjet_sigma, "ak5pfjet_sigma/F");
@@ -806,32 +807,32 @@ void RootMaker::beginJob(){
   tree->Branch("pfmetsigyx", &pfmetsigyx, "pfmetsigyx/F");
   tree->Branch("pfmetsigyy", &pfmetsigyy, "pfmetsigyy/F");
 
-  tree->Branch("secvertices_count", &secvertices_count, "secvertices_count/i");
-  tree->Branch("secvertices_vx", secvertices_vx, "secvertices_vx[secvertices_count]/F");
-  tree->Branch("secvertices_vy", secvertices_vy, "secvertices_vy[secvertices_count]/F");
-  tree->Branch("secvertices_vz", secvertices_vz, "secvertices_vz[secvertices_count]/F");
-  tree->Branch("secvertices_chi2", secvertices_chi2, "secvertices_chi2[secvertices_count]/F");
-  tree->Branch("secvertices_ndof", secvertices_ndof, "secvertices_ndof[secvertices_count]/F");
-  tree->Branch("secvertices_cov", secvertices_cov, "secvertices_cov[secvertices_count][6]/F");
-  tree->Branch("secvertices_track_px", secvertices_track_px, "secvertices_track_px[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_py", secvertices_track_py, "secvertices_track_py[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_pz", secvertices_track_pz, "secvertices_track_pz[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_closestpointx", secvertices_track_closestpointx, "secvertices_track_closestpointx[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_closestpointy", secvertices_track_closestpointy, "secvertices_track_closestpointy[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_closestpointz", secvertices_track_closestpointz, "secvertices_track_closestpointz[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_chi2", secvertices_track_chi2, "secvertices_track_chi2[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_ndof", secvertices_track_ndof, "secvertices_track_ndof[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_dxy", secvertices_track_dxy, "secvertices_track_dxy[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_dxyerr", secvertices_track_dxyerr, "secvertices_track_dxyerr[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_dz", secvertices_track_dz, "secvertices_track_dz[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_dzerr", secvertices_track_dzerr, "secvertices_track_dzerr[secvertices_count][2]/F");
-  tree->Branch("secvertices_track_dedxharmonic2", secvertices_track_dedxharmonic2, "secvertices_track_dedxharmonic2[track_count][2]/F");
-  tree->Branch("secvertices_track_charge", secvertices_track_charge, "secvertices_track_charge[secvertices_count][2]/I");
-  tree->Branch("secvertices_track_nhits", secvertices_track_nhits, "secvertices_track_nhits[secvertices_count][2]/b");
-  tree->Branch("secvertices_track_nmissinghits", secvertices_track_nmissinghits, "secvertices_track_nmissinghits[secvertices_count][2]/b");
-  tree->Branch("secvertices_track_npixelhits", secvertices_track_npixelhits, "secvertices_track_npixelhits[secvertices_count][2]/b");
-  tree->Branch("secvertices_track_npixellayers", secvertices_track_npixellayers, "secvertices_track_npixellayers[secvertices_count][2]/b");
-  tree->Branch("secvertices_track_nstriplayers", secvertices_track_nstriplayers, "secvertices_track_nstriplayers[secvertices_count][2]/b");
+//   tree->Branch("secvertices_count", &secvertices_count, "secvertices_count/i");
+//   tree->Branch("secvertices_vx", secvertices_vx, "secvertices_vx[secvertices_count]/F");
+//   tree->Branch("secvertices_vy", secvertices_vy, "secvertices_vy[secvertices_count]/F");
+//   tree->Branch("secvertices_vz", secvertices_vz, "secvertices_vz[secvertices_count]/F");
+//   tree->Branch("secvertices_chi2", secvertices_chi2, "secvertices_chi2[secvertices_count]/F");
+//   tree->Branch("secvertices_ndof", secvertices_ndof, "secvertices_ndof[secvertices_count]/F");
+//   tree->Branch("secvertices_cov", secvertices_cov, "secvertices_cov[secvertices_count][6]/F");
+//   tree->Branch("secvertices_track_px", secvertices_track_px, "secvertices_track_px[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_py", secvertices_track_py, "secvertices_track_py[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_pz", secvertices_track_pz, "secvertices_track_pz[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_closestpointx", secvertices_track_closestpointx, "secvertices_track_closestpointx[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_closestpointy", secvertices_track_closestpointy, "secvertices_track_closestpointy[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_closestpointz", secvertices_track_closestpointz, "secvertices_track_closestpointz[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_chi2", secvertices_track_chi2, "secvertices_track_chi2[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_ndof", secvertices_track_ndof, "secvertices_track_ndof[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_dxy", secvertices_track_dxy, "secvertices_track_dxy[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_dxyerr", secvertices_track_dxyerr, "secvertices_track_dxyerr[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_dz", secvertices_track_dz, "secvertices_track_dz[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_dzerr", secvertices_track_dzerr, "secvertices_track_dzerr[secvertices_count][2]/F");
+//   tree->Branch("secvertices_track_dedxharmonic2", secvertices_track_dedxharmonic2, "secvertices_track_dedxharmonic2[track_count][2]/F");
+//   tree->Branch("secvertices_track_charge", secvertices_track_charge, "secvertices_track_charge[secvertices_count][2]/I");
+//   tree->Branch("secvertices_track_nhits", secvertices_track_nhits, "secvertices_track_nhits[secvertices_count][2]/b");
+//   tree->Branch("secvertices_track_nmissinghits", secvertices_track_nmissinghits, "secvertices_track_nmissinghits[secvertices_count][2]/b");
+//   tree->Branch("secvertices_track_npixelhits", secvertices_track_npixelhits, "secvertices_track_npixelhits[secvertices_count][2]/b");
+//   tree->Branch("secvertices_track_npixellayers", secvertices_track_npixellayers, "secvertices_track_npixellayers[secvertices_count][2]/b");
+//   tree->Branch("secvertices_track_nstriplayers", secvertices_track_nstriplayers, "secvertices_track_nstriplayers[secvertices_count][2]/b");
   
   tree->Branch("musecvertices_count", &musecvertices_count, "musecvertices_count/i");
   tree->Branch("musecvertices_vx", musecvertices_vx, "musecvertices_vx[musecvertices_count]/F");
@@ -2714,15 +2715,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned int nGoodTaus = 0;
   if(Taus.isValid())
     {
-      //vector<edm::Handle<PFTauDiscriminator> > PFTauDiscriminatiors(cTauDiscriminators.size());
-      //for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
-      //{
-      //iEvent.getByLabel(cTauDiscriminators[n].c_str(), PFTauDiscriminatiors[n]);
-      //}
-      //edm::Handle<PFTauDiscriminator> hpsPFTauDiscriminationByLooseIsolation;
-      //iEvent.getByLabel("hpsPFTauDiscriminationByLooseIsolation", hpsPFTauDiscriminationByLooseIsolation);
       tauIndexSelection.clear();
-
+      
       for(unsigned i = 0 ; i < Taus->size() ; i++)
 	{
 	  // skiming  selection
@@ -2730,19 +2724,10 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if((*Taus)[i].eta() > 2.2 )                         continue;
 	  if((*Taus)[i].tauID("decayModeFinding")     < 0.5 ) continue;
 
-	  //pat::Tau aTauLeg( (*Taus)[i] );
-	  //if( aTauLeg.tauID("againstMuonTight")       < 0.5 ) continue;
-	  //if( aTauLeg.tauID("againstElectronTight")   < 0.5 ) continue;
-	  //if( aTauLeg.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") < 0.5) continue;
-
 	  if(doDebug) cout << "Skimmed events..."<< endl;
 	  if((*Taus)[i].pt() > 20 && (*Taus)[i].tauID("decayModeFinding") > 0.5) ++nGoodTaus;
 	  tauIndexSelection.push_back(i);
 	  
-	  // int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
-	  // PFTauRef tauCandidate(Taus, i);
-	  // if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) continue;
-
 	  tau_dishps[tau_count] = 0;
 	  for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
 	    {
