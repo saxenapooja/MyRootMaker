@@ -626,6 +626,14 @@ void RootMaker::beginJob(){
   tree->Branch("tau_calocomp", tau_calocomp, "tau_calocomp[tau_count]/F");
   tree->Branch("tau_segcomp", tau_segcomp, "tau_segcomp[tau_count]/F");
   tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/l");
+  tree->Branch("tau_scaleUpE", tau_scaleUpE, "tau_scaleUpE[tau_count]/F");
+  tree->Branch("tau_scaleUpPx", tau_scaleUpPx, "tau_scaleUpPx[tau_count]/F");
+  tree->Branch("tau_scaleUpPy", tau_scaleUpPy, "tau_scaleUpPy[tau_count]/F");
+  tree->Branch("tau_scaleUpPz", tau_scaleUpPz, "tau_scaleUpPz[tau_count]/F");
+  tree->Branch("tau_scaleDownE", tau_scaleDownE, "tau_scaleDownE[tau_count]/F");
+  tree->Branch("tau_scaleDownPx", tau_scaleDownPx, "tau_scaleDownPx[tau_count]/F");
+  tree->Branch("tau_scaleDownPy", tau_scaleDownPy, "tau_scaleDownPy[tau_count]/F");
+  tree->Branch("tau_scaleDownPz", tau_scaleDownPz, "tau_scaleDownPz[tau_count]/F");
 
 //   tree->Branch("tau_againstelectronmva5raw", tau_againstelectronmva5raw, "tau_againstelectronmva5raw[tau_count]/F");
 //   tree->Branch("tau_byIsolationmva3newDMwoLTraw", tau_byIsolationmva3newDMwoLTraw, "tau_byIsolationmva3newDMwoLTraw[tau_count]/F");
@@ -706,6 +714,8 @@ void RootMaker::beginJob(){
   tree->Branch("ditau_leg2_Y_OPV", ditau_leg2_Y_OPV,"ditau_leg2_Y_OPV[ditau_Index]/F");
   tree->Branch("ditau_leg2_Z_OPV", ditau_leg2_Z_OPV,"ditau_leg2_Z_OPV[ditau_Index]/F");
   tree->Branch("diTauSVFitMass", diTauSVFitMass,"diTauSVFitMass[ditau_Index]/D");
+  tree->Branch("diTauSVFitMass_upScaled", diTauSVFitMass_upScaled,"diTauSVFitMass_upScaled[ditau_Index]/F");
+  tree->Branch("diTauSVFitMass_downScaled", diTauSVFitMass_downScaled,"diTauSVFitMass_downScaled[ditau_Index]/F");
   tree->Branch("diTau_RecCorr_Px", diTau_RecCorr_Px,"diTau_RecCorr_Px[ditau_Index]/F");
   tree->Branch("diTau_RecCorr_Py", diTau_RecCorr_Py,"diTau_RecCorr_Py[ditau_Index]/F");
   tree->Branch("diTau_RecCorr_Pz", diTau_RecCorr_Pz,"diTau_RecCorr_Pz[ditau_Index]/F");
@@ -2748,7 +2758,15 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_bremsrecoveryeoverplead[tau_count]                  = (*Taus)[i].ecalStripSumEOverPLead();
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
-
+	  tau_scaleUpE[tau_count]                                 = (GetRescaledTau((*Taus)[i], 0.03)).e();
+	  tau_scaleUpPx[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).px();
+	  tau_scaleUpPy[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).py();
+	  tau_scaleUpPz[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).pz();
+	  tau_scaleDownE[tau_count]                               = (GetRescaledTau((*Taus)[i], -0.03)).e();
+	  tau_scaleDownPx[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).px();
+	  tau_scaleDownPy[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).py();
+	  tau_scaleDownPz[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).pz();
+	  
 	  if( ((*Taus)[i].genJet())) 
 	    tau_genTaudecayMode[tau_count]                        = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
 	  else tau_genTaudecayMode[tau_count]                     = -1.;
@@ -3112,48 +3130,54 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		} // if(nonTauTracks.size() >= 2) 
 	      
 
-		// ditau SVFIT mass
+		// DITAU SVFIT MASS
 		LorentzVector Leg1p4((*Taus)[indxTau1].px(), (*Taus)[indxTau1].py(), (*Taus)[indxTau1].pz(), (*Taus)[indxTau1].energy());
 		LorentzVector Leg2p4((*Taus)[indxTau2].px(), (*Taus)[indxTau2].py(), (*Taus)[indxTau2].pz(), (*Taus)[indxTau2].energy());
 
-		//covaraince
+		// covaraince
 		edm::Handle<PFMEtSignCovMatrix> MetSignMatrix;
 		iEvent.getByLabel(edm::InputTag("pfMEtMVACov"), MetSignMatrix);
 		TMatrixD cov_(2,2);
 		if(MetSignMatrix.isValid()) cov_ = (*MetSignMatrix);		
 		
-		//pfmet
+		// pfmet
 		edm::Handle<reco::PFMETCollection> pfMet;
 		iEvent.getByLabel(edm::InputTag("pfMet"), pfMet);
 		LorentzVector MET(0, 0, 0, 0);
 		if(pfMet.isValid() && pfMet->size() > 0) MET.SetPxPyPzE((*pfMet)[0].px(), (*pfMet)[0].py(), 0, (*pfMet)[0].energy());
 
-		diTauSVFitMass[ditau_Index] =  ComputeDiTauMass(Leg1p4, Leg2p4, MET, cov_);
+		// Get shift in momentum by 1%
+		LorentzVector Leg1P4_upScaled = GetShiftedMomentum((*Taus)[indxTau1], 0.01);		
+		LorentzVector Leg2P4_upScaled = GetShiftedMomentum((*Taus)[indxTau2], 0.01);		
+
+		LorentzVector Leg1P4_downScaled = GetShiftedMomentum((*Taus)[indxTau1], -0.01);		
+		LorentzVector Leg2P4_downScaled = GetShiftedMomentum((*Taus)[indxTau2], -0.01);		
+
+		diTauSVFitMass[ditau_Index]             =  ComputeDiTauMass(Leg1p4           , Leg2p4           , MET, cov_);
+		diTauSVFitMass_upScaled[ditau_Index]    =  ComputeDiTauMass(Leg1P4_upScaled  , Leg2P4_upScaled  , MET, cov_);
+		diTauSVFitMass_downScaled[ditau_Index]  =  ComputeDiTauMass(Leg1P4_downScaled, Leg2P4_downScaled, MET, cov_);
 		
 
-		//recoil Correction	
-		TLorentzVector recCorrection(0,0,0,0);
-
+		// RECOIL CORRECTION
 		edm::Handle<pat::JetCollection> ak5pfJets;
 		iEvent.getByLabel(edm::InputTag("patJets"), ak5pfJets);
 		 
 		edm::Handle<edm::ValueMap<int> > puJetIdFlagFull;
 		iEvent.getByLabel(edm::InputTag("pileupJetIdProducer","fullId"), puJetIdFlagFull);
-		
-		vector<pat::Jet> jetColl;
 
-		if(ak5pfJets.isValid())
-		    {
-		      for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
-			{
-			  const pat::Jet &jet = (*ak5pfJets)[i];
-			  float pt     = jet.pt();
-			  float eta    = jet.eta();
-			  bool ak5pfjetLooseID = PileupJetIdentifier::passJetId( (*puJetIdFlagFull)[(*ak5pfJets)[i].originalObjectRef()], PileupJetIdentifier::kLoose);
-			  if(pt > cAK5PFPt4RC && fabs(eta) < cAK5PFEta4RC && ak5pfjetLooseID)  jetColl.push_back(jet);	      
-			}
-		    }// if(ak5pfJets.isValid())
+		TLorentzVector recCorrection(0,0,0,0);		
+		vector<pat::Jet> jetColl;
 		
+		if(ak5pfJets.isValid()) {
+		  for(unsigned i = 0 ; i < ak5pfJets->size() ; i++)
+		    {
+		      const pat::Jet &jet = (*ak5pfJets)[i];
+		      float pt     = jet.pt();
+		      float eta    = jet.eta();
+		      bool ak5pfjetLooseID = PileupJetIdentifier::passJetId( (*puJetIdFlagFull)[(*ak5pfJets)[i].originalObjectRef()], PileupJetIdentifier::kLoose);
+		      if(pt > cAK5PFPt4RC && fabs(eta) < cAK5PFEta4RC && ak5pfjetLooseID)  jetColl.push_back(jet);	      
+		    }
+		}// if(ak5pfJets.isValid())
 		
 		njets4RC = 0;
 		for(size_t i = 0; i < jetColl.size(); i++) {
@@ -3162,7 +3186,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if( (ROOT::Math::VectorUtil::DeltaR(JetP4, Leg1p4) > 0.3 ) && (ROOT::Math::VectorUtil::DeltaR(JetP4, Leg2p4) > 0.3 ) ) njets4RC++;
 		}
 		
-		//Genn Collection
+		//Gen Collection
 		edm::Handle<GenParticleCollection> GenParticles;
 		iEvent.getByLabel(edm::InputTag("genPlusSimParticles"), GenParticles);
 		
@@ -3300,6 +3324,23 @@ RootMaker::DCA RootMaker::calculateDCA(const pat::Tau& tau1, const pat::Tau& tau
 	
 	return dca;
 }
+
+		
+LorentzVector RootMaker::GetRescaledTau(const pat::Tau& tau, double shift)
+{
+  double scale =  1 + shift;
+  if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() <= 0) //1 prong e/mu
+    {
+      scale = sqrt( tau.energy()*(1+shift) * tau.energy()*(1+shift) - tau.mass()*tau.mass() )/tau.p(); 
+    }
+  LorentzVector ShiftedTau( tau.px()*scale , tau.py()*scale, tau.pz()*scale, tau.energy()*(1+shift) ); 
+
+  if(doDebug)cout<<"scaled tau : "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<"," << ShiftedTau.E()<< endl;  
+  if(doDebug) std::cout<<" Rescaling Pat::Tau of DecayMode "<<tau.decayMode()<<" by "<<shift<<"% ==> scale = "<<scale<<std::endl;
+
+  return ShiftedTau; 
+}
+
 
 bool RootMaker::AddTauTauPairs(const edm::Event& iEvent)
 {
@@ -4240,6 +4281,45 @@ TLorentzVector RootMaker::RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector
 }
 
 
+LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift) {
+  // shift in momentum by 1%
+  cout<<"=========== inside GetShiftedMomentum, scaling by: "<<shift << endl;
+  double shiftP    = 1.;
+  double shiftMass = 1.;
+
+  LorentzVector tauP4 = tau.p4();  
+
+  if ( tau.genJet() && deltaR(tauP4, tau.genJet()->p4()) < 0.5 && tau.genJet()->pt() > 8. ) {
+    if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() > 0){    // 1-prong with EM decay
+      cout<<"case-I -> 1 prong EM decay"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1 + shift;
+    }
+    else if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size()==0){ // 1-prong with hadronic pions
+      cout<<"case-II -> 1 prong nonEM decay"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1.;
+    }
+    else if((tau.signalPFChargedHadrCands()).size()==3) { //3-prong
+      cout<<"case-III -> 3 prong"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1 + shift;
+    }
+  }
+
+  double scaledPx = tau.px()*shiftP;
+  double scaledPy = tau.py()*shiftP;
+  double scaledPz = tau.pz()*shiftP;
+  double scaledM  = tau.mass()*shiftP;
+  double scaledE  = TMath::Sqrt(scaledPx*scaledPx + scaledPy*scaledPy + scaledPz*scaledPz + scaledM*scaledM);
+
+
+  LorentzVector ShiftedTau(scaledPx, scaledPy, scaledPz, scaledE);
+  cout<<"unscaled Tau : "<< tauP4.px() <<", "<< tauP4.py()<< ", "<< tauP4.pz()<<", " << tauP4.E()<< endl;
+  cout<<"scaled tau :   "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<", " << ShiftedTau.E()<< endl;
+  
+  return ShiftedTau;
+}
 
 bool RootMaker::AddVertices(const edm::Event& iEvent)
 {
