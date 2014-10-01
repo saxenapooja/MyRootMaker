@@ -203,7 +203,9 @@ class RootMaker : public edm::EDAnalyzer{
   Int_t getSuperCluster(float e, float x, float y, float z);
   double ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, LorentzVector met, TMatrixD cov);
   TLorentzVector RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector Leg1p4_, LorentzVector Leg2p4_, const reco::GenParticle *boson_, string sampleName_, int nJets_);
-  
+  LorentzVector GetShiftedMomentum(const pat::Tau& tau, double shift);
+  LorentzVector GetRescaledTau(const pat::Tau& tau, double shift);
+
   struct DCA {
     float dca2d;
     float dca2dErr;
@@ -436,11 +438,13 @@ class RootMaker : public edm::EDAnalyzer{
   Float_t ditau_leg2_X_OPV[M_taumaxcount];
   Float_t ditau_leg2_Y_OPV[M_taumaxcount];
   Float_t ditau_leg2_Z_OPV[M_taumaxcount];
-  Double_t diTauSVFitMass[M_taumaxcount];
   Float_t diTau_RecCorr_Px[M_taumaxcount];
   Float_t diTau_RecCorr_Py[M_taumaxcount];
   Float_t diTau_RecCorr_Pz[M_taumaxcount];
   Float_t diTau_RecCorr_E[M_taumaxcount];
+  Float_t diTauSVFitMass_upScaled[M_taumaxcount];
+  Float_t diTauSVFitMass_downScaled[M_taumaxcount];
+  Double_t diTauSVFitMass[M_taumaxcount];
 
 
   UInt_t supercluster_count;
@@ -770,6 +774,14 @@ class RootMaker : public edm::EDAnalyzer{
 
   UInt_t tau_count;
   Float_t tau_e[M_taumaxcount];
+  Float_t tau_scaleUpE[M_taumaxcount];
+  Float_t tau_scaleUpPx[M_taumaxcount];
+  Float_t tau_scaleUpPy[M_taumaxcount];
+  Float_t tau_scaleUpPz[M_taumaxcount];
+  Float_t tau_scaleDownE[M_taumaxcount];
+  Float_t tau_scaleDownPx[M_taumaxcount];
+  Float_t tau_scaleDownPy[M_taumaxcount];
+  Float_t tau_scaleDownPz[M_taumaxcount];
   Float_t tau_px[M_taumaxcount];
   Float_t tau_py[M_taumaxcount];
   Float_t tau_pz[M_taumaxcount];
