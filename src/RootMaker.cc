@@ -626,14 +626,14 @@ void RootMaker::beginJob(){
   tree->Branch("tau_calocomp", tau_calocomp, "tau_calocomp[tau_count]/F");
   tree->Branch("tau_segcomp", tau_segcomp, "tau_segcomp[tau_count]/F");
   tree->Branch("tau_dishps", tau_dishps, "tau_dishps[tau_count]/l");
-  tree->Branch("tau_scaleUpE", tau_scaleUpE, "tau_scaleUpE[tau_count]/F");
-  tree->Branch("tau_scaleUpPx", tau_scaleUpPx, "tau_scaleUpPx[tau_count]/F");
-  tree->Branch("tau_scaleUpPy", tau_scaleUpPy, "tau_scaleUpPy[tau_count]/F");
-  tree->Branch("tau_scaleUpPz", tau_scaleUpPz, "tau_scaleUpPz[tau_count]/F");
-  tree->Branch("tau_scaleDownE", tau_scaleDownE, "tau_scaleDownE[tau_count]/F");
-  tree->Branch("tau_scaleDownPx", tau_scaleDownPx, "tau_scaleDownPx[tau_count]/F");
-  tree->Branch("tau_scaleDownPy", tau_scaleDownPy, "tau_scaleDownPy[tau_count]/F");
-  tree->Branch("tau_scaleDownPz", tau_scaleDownPz, "tau_scaleDownPz[tau_count]/F");
+//   tree->Branch("tau_scaleUpE", tau_scaleUpE, "tau_scaleUpE[tau_count]/F");
+//   tree->Branch("tau_scaleUpPx", tau_scaleUpPx, "tau_scaleUpPx[tau_count]/F");
+//   tree->Branch("tau_scaleUpPy", tau_scaleUpPy, "tau_scaleUpPy[tau_count]/F");
+//   tree->Branch("tau_scaleUpPz", tau_scaleUpPz, "tau_scaleUpPz[tau_count]/F");
+//   tree->Branch("tau_scaleDownE", tau_scaleDownE, "tau_scaleDownE[tau_count]/F");
+//   tree->Branch("tau_scaleDownPx", tau_scaleDownPx, "tau_scaleDownPx[tau_count]/F");
+//   tree->Branch("tau_scaleDownPy", tau_scaleDownPy, "tau_scaleDownPy[tau_count]/F");
+//   tree->Branch("tau_scaleDownPz", tau_scaleDownPz, "tau_scaleDownPz[tau_count]/F");
 
 //   tree->Branch("tau_againstelectronmva5raw", tau_againstelectronmva5raw, "tau_againstelectronmva5raw[tau_count]/F");
 //   tree->Branch("tau_byIsolationmva3newDMwoLTraw", tau_byIsolationmva3newDMwoLTraw, "tau_byIsolationmva3newDMwoLTraw[tau_count]/F");
@@ -2758,14 +2758,16 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_bremsrecoveryeoverplead[tau_count]                  = (*Taus)[i].ecalStripSumEOverPLead();
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
-	  tau_scaleUpE[tau_count]                                 = (GetRescaledTau((*Taus)[i], 0.03)).e();
-	  tau_scaleUpPx[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).px();
-	  tau_scaleUpPy[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).py();
-	  tau_scaleUpPz[tau_count]                                = (GetRescaledTau((*Taus)[i], 0.03)).pz();
-	  tau_scaleDownE[tau_count]                               = (GetRescaledTau((*Taus)[i], -0.03)).e();
-	  tau_scaleDownPx[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).px();
-	  tau_scaleDownPy[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).py();
-	  tau_scaleDownPz[tau_count]                              = (GetRescaledTau((*Taus)[i], -0.03)).pz();
+
+	  //nominal corrections
+// 	  tau_scaleUpE[tau_count]                                 = (GetNominalCorrTau((*Taus)[i], 0.01)).e();
+// 	  tau_scaleUpPx[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).px();
+// 	  tau_scaleUpPy[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).py();
+// 	  tau_scaleUpPz[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).pz();
+// 	  tau_scaleDownE[tau_count]                               = (GetNominalCorrTau((*Taus)[i], -0.01)).e();
+// 	  tau_scaleDownPx[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).px();
+// 	  tau_scaleDownPy[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).py();
+// 	  tau_scaleDownPz[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).pz();
 	  
 	  if( ((*Taus)[i].genJet())) 
 	    tau_genTaudecayMode[tau_count]                        = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
@@ -3131,8 +3133,19 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 
 		// DITAU SVFIT MASS
-		LorentzVector Leg1p4((*Taus)[indxTau1].px(), (*Taus)[indxTau1].py(), (*Taus)[indxTau1].pz(), (*Taus)[indxTau1].energy());
-		LorentzVector Leg2p4((*Taus)[indxTau2].px(), (*Taus)[indxTau2].py(), (*Taus)[indxTau2].pz(), (*Taus)[indxTau2].energy());
+		//define the pat::taus for two indices 
+		pat::Tau tau1_NomCorr((*Taus)[indxTau1]);
+		pat::Tau tau2_NomCorr((*Taus)[indxTau2]);
+
+		//get nomincal corrected taus (by 1%), P4
+		LorentzVector Leg1P4_NominalCorr(GetNominalCorrTau(tau1_NomCorr, 0.01));
+		LorentzVector Leg2P4_NominalCorr(GetNominalCorrTau(tau2_NomCorr, 0.01));
+
+		//assign them nomincal corrected P4
+		tau1_NomCorr.setP4(Leg1P4_NominalCorr);
+		tau2_NomCorr.setP4(Leg2P4_NominalCorr);
+		LorentzVector Leg1p4(tau1_NomCorr.px(), tau1_NomCorr.py(), tau1_NomCorr.pz(), tau1_NomCorr.energy());
+		LorentzVector Leg2p4(tau2_NomCorr.px(), tau2_NomCorr.py(), tau2_NomCorr.pz(), tau2_NomCorr.energy());
 
 		// covaraince
 		edm::Handle<PFMEtSignCovMatrix> MetSignMatrix;
@@ -3146,12 +3159,12 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		LorentzVector MET(0, 0, 0, 0);
 		if(pfMet.isValid() && pfMet->size() > 0) MET.SetPxPyPzE((*pfMet)[0].px(), (*pfMet)[0].py(), 0, (*pfMet)[0].energy());
 
-		// Get shift in momentum by 1%
-		LorentzVector Leg1P4_upScaled = GetShiftedMomentum((*Taus)[indxTau1], 0.01);		
-		LorentzVector Leg2P4_upScaled = GetShiftedMomentum((*Taus)[indxTau2], 0.01);		
+		// Get additioanl corrections in pt by 3%
+		LorentzVector Leg1P4_upScaled = GetShiftedMomentum(tau1_NomCorr, 0.03);		
+		LorentzVector Leg2P4_upScaled = GetShiftedMomentum(tau2_NomCorr, 0.03);		
 
-		LorentzVector Leg1P4_downScaled = GetShiftedMomentum((*Taus)[indxTau1], -0.01);		
-		LorentzVector Leg2P4_downScaled = GetShiftedMomentum((*Taus)[indxTau2], -0.01);		
+		LorentzVector Leg1P4_downScaled = GetShiftedMomentum(tau1_NomCorr, -0.03);		
+		LorentzVector Leg2P4_downScaled = GetShiftedMomentum(tau2_NomCorr, -0.03);		
 
 		diTauSVFitMass[ditau_Index]             =  ComputeDiTauMass(Leg1p4           , Leg2p4           , MET, cov_);
 		diTauSVFitMass_upScaled[ditau_Index]    =  ComputeDiTauMass(Leg1P4_upScaled  , Leg2P4_upScaled  , MET, cov_);
@@ -3326,7 +3339,7 @@ RootMaker::DCA RootMaker::calculateDCA(const pat::Tau& tau1, const pat::Tau& tau
 }
 
 		
-LorentzVector RootMaker::GetRescaledTau(const pat::Tau& tau, double shift)
+LorentzVector RootMaker::GetNominalCorrTau(const pat::Tau& tau, double shift)
 {
   double scale =  1 + shift;
   if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() <= 0) //1 prong e/mu
@@ -4283,7 +4296,7 @@ TLorentzVector RootMaker::RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector
 
 LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift) {
   // shift in momentum by 1%
-  cout<<"=========== inside GetShiftedMomentum, scaling by: "<<shift << endl;
+  if(doDebug)  cout<<"=========== inside GetShiftedMomentum, scaling by: "<<shift << endl;
   double shiftP    = 1.;
   double shiftMass = 1.;
 
@@ -4291,17 +4304,17 @@ LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift) {
 
   if ( tau.genJet() && deltaR(tauP4, tau.genJet()->p4()) < 0.5 && tau.genJet()->pt() > 8. ) {
     if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() > 0){    // 1-prong with EM decay
-      cout<<"case-I -> 1 prong EM decay"<< endl;
+      if(doDebug)       cout<<"case-I -> 1 prong EM decay"<< endl;
       shiftP = 1 + shift; //New correction for Winter2013
       shiftMass = 1 + shift;
     }
     else if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size()==0){ // 1-prong with hadronic pions
-      cout<<"case-II -> 1 prong nonEM decay"<< endl;
+      if(doDebug)       cout<<"case-II -> 1 prong nonEM decay"<< endl;
       shiftP = 1 + shift; //New correction for Winter2013
       shiftMass = 1.;
     }
     else if((tau.signalPFChargedHadrCands()).size()==3) { //3-prong
-      cout<<"case-III -> 3 prong"<< endl;
+      if(doDebug)      cout<<"case-III -> 3 prong"<< endl;
       shiftP = 1 + shift; //New correction for Winter2013
       shiftMass = 1 + shift;
     }
@@ -4315,8 +4328,8 @@ LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift) {
 
 
   LorentzVector ShiftedTau(scaledPx, scaledPy, scaledPz, scaledE);
-  cout<<"unscaled Tau : "<< tauP4.px() <<", "<< tauP4.py()<< ", "<< tauP4.pz()<<", " << tauP4.E()<< endl;
-  cout<<"scaled tau :   "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<", " << ShiftedTau.E()<< endl;
+  // cout<<"unscaled Tau : "<< tauP4.px() <<", "<< tauP4.py()<< ", "<< tauP4.pz()<<", " << tauP4.E()<< endl;
+  //cout<<"scaled tau :   "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<", " << ShiftedTau.E()<< endl;
   
   return ShiftedTau;
 }
