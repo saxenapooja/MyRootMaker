@@ -204,7 +204,7 @@ class RootMaker : public edm::EDAnalyzer{
   double ComputeDiTauMass(LorentzVector leg1, LorentzVector leg2, LorentzVector met, TMatrixD cov);
   TLorentzVector RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector Leg1p4_, LorentzVector Leg2p4_, const reco::GenParticle *boson_, string sampleName_, int nJets_);
   LorentzVector GetShiftedMomentum(const pat::Tau& tau, double shift);
-  LorentzVector GetRescaledTau(const pat::Tau& tau, double shift);
+  LorentzVector GetNominalCorrTau(const pat::Tau& tau, double shift);
 
   struct DCA {
     float dca2d;
@@ -774,14 +774,14 @@ class RootMaker : public edm::EDAnalyzer{
 
   UInt_t tau_count;
   Float_t tau_e[M_taumaxcount];
-  Float_t tau_scaleUpE[M_taumaxcount];
-  Float_t tau_scaleUpPx[M_taumaxcount];
-  Float_t tau_scaleUpPy[M_taumaxcount];
-  Float_t tau_scaleUpPz[M_taumaxcount];
-  Float_t tau_scaleDownE[M_taumaxcount];
-  Float_t tau_scaleDownPx[M_taumaxcount];
-  Float_t tau_scaleDownPy[M_taumaxcount];
-  Float_t tau_scaleDownPz[M_taumaxcount];
+/*   Float_t tau_scaleUpE[M_taumaxcount]; */
+/*   Float_t tau_scaleUpPx[M_taumaxcount]; */
+/*   Float_t tau_scaleUpPy[M_taumaxcount]; */
+/*   Float_t tau_scaleUpPz[M_taumaxcount]; */
+/*   Float_t tau_scaleDownE[M_taumaxcount]; */
+/*   Float_t tau_scaleDownPx[M_taumaxcount]; */
+/*   Float_t tau_scaleDownPy[M_taumaxcount]; */
+/*   Float_t tau_scaleDownPz[M_taumaxcount]; */
   Float_t tau_px[M_taumaxcount];
   Float_t tau_py[M_taumaxcount];
   Float_t tau_pz[M_taumaxcount];
