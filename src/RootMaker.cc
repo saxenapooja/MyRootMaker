@@ -150,19 +150,19 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
 
   //recoilCorrector
   if(sampleName.find("ZJets") !=std::string::npos) {
-    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else if(sampleName.find("WJets")!=std::string::npos){
-    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_wjets53X_20pv_njet.root");
-    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_wjets53X_20pv_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else if(sampleName.find("Higgs")!=std::string::npos){
-    corrector_ = new RecoilCorrector("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_higgs53X_20pv_njet.root");
-    corrector_->addMCFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile("/nfs/dust/cms/user/pooja/scratch/plot-macro/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "/MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_higgs53X_20pv_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else
     corrector_ = 0;
@@ -2759,16 +2759,6 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
 
-	  //nominal corrections
-// 	  tau_scaleUpE[tau_count]                                 = (GetNominalCorrTau((*Taus)[i], 0.01)).e();
-// 	  tau_scaleUpPx[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).px();
-// 	  tau_scaleUpPy[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).py();
-// 	  tau_scaleUpPz[tau_count]                                = (GetNominalCorrTau((*Taus)[i], 0.01)).pz();
-// 	  tau_scaleDownE[tau_count]                               = (GetNominalCorrTau((*Taus)[i], -0.01)).e();
-// 	  tau_scaleDownPx[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).px();
-// 	  tau_scaleDownPy[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).py();
-// 	  tau_scaleDownPz[tau_count]                              = (GetNominalCorrTau((*Taus)[i], -0.01)).pz();
-	  
 	  if( ((*Taus)[i].genJet())) 
 	    tau_genTaudecayMode[tau_count]                        = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
 	  else tau_genTaudecayMode[tau_count]                     = -1.;
@@ -3338,8 +3328,49 @@ RootMaker::DCA RootMaker::calculateDCA(const pat::Tau& tau1, const pat::Tau& tau
 	return dca;
 }
 
+
+LorentzVector RootMaker::GetNominalCorrTau(const pat::Tau& tau, double shift) {
+  // shift in momentum by 1%
+  //  if(doDebug)  
+  //  cout<<"=========== inside GetShiftedMomentum, scaling by: "<<shift << endl;
+  double shiftP    = 1.;
+  double shiftMass = 1.;
+
+  LorentzVector tauP4 = tau.p4();  
+
+  if ( tau.genJet() && deltaR(tauP4, tau.genJet()->p4()) < 0.5 && tau.genJet()->pt() > 8. ) {
+    if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() > 0){    // 1-prong with EM decay
+      //  cout<<"case-I -> 1 prong EM decay"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1 + shift;
+    }
+    else if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size()==0){ // 1-prong with hadronic pions
+      //cout<<"case-II -> 1 prong nonEM decay"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1.;
+    }
+    else if((tau.signalPFChargedHadrCands()).size()==3) { //3-prong
+      //cout<<"case-III -> 3 prong"<< endl;
+      shiftP = 1 + shift; //New correction for Winter2013
+      shiftMass = 1 + shift;
+    }
+  }
+ 
+  double scaledPx = tau.px()*shiftP;
+  double scaledPy = tau.py()*shiftP;
+  double scaledPz = tau.pz()*shiftP;
+  double scaledM  = tau.mass()*shiftMass;
+  double scaledE  = TMath::Sqrt(scaledPx*scaledPx + scaledPy*scaledPy + scaledPz*scaledPz + scaledM*scaledM);
+
+  LorentzVector ShiftedTau(scaledPx, scaledPy, scaledPz, scaledE);
+//   cout<<"unscaled Tau : "<< tauP4.px() <<", "<< tauP4.py()<< ", "<< tauP4.pz()<<", " << tauP4.E()<< endl;
+//   cout<<"scaled tau :   "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<", " << ShiftedTau.E()<< endl;
+  
+  return ShiftedTau;
+}
+
 		
-LorentzVector RootMaker::GetNominalCorrTau(const pat::Tau& tau, double shift)
+LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift)
 {
   double scale =  1 + shift;
   if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() <= 0) //1 prong e/mu
@@ -4293,46 +4324,6 @@ TLorentzVector RootMaker::RecoilCorrectedMET(LorentzVector pfMet_, LorentzVector
   return corMET_;
 }
 
-
-LorentzVector RootMaker::GetShiftedMomentum(const pat::Tau& tau, double shift) {
-  // shift in momentum by 1%
-  if(doDebug)  cout<<"=========== inside GetShiftedMomentum, scaling by: "<<shift << endl;
-  double shiftP    = 1.;
-  double shiftMass = 1.;
-
-  LorentzVector tauP4 = tau.p4();  
-
-  if ( tau.genJet() && deltaR(tauP4, tau.genJet()->p4()) < 0.5 && tau.genJet()->pt() > 8. ) {
-    if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size() > 0){    // 1-prong with EM decay
-      if(doDebug)       cout<<"case-I -> 1 prong EM decay"<< endl;
-      shiftP = 1 + shift; //New correction for Winter2013
-      shiftMass = 1 + shift;
-    }
-    else if((tau.signalPFChargedHadrCands()).size()==1 && (tau.signalPFGammaCands()).size()==0){ // 1-prong with hadronic pions
-      if(doDebug)       cout<<"case-II -> 1 prong nonEM decay"<< endl;
-      shiftP = 1 + shift; //New correction for Winter2013
-      shiftMass = 1.;
-    }
-    else if((tau.signalPFChargedHadrCands()).size()==3) { //3-prong
-      if(doDebug)      cout<<"case-III -> 3 prong"<< endl;
-      shiftP = 1 + shift; //New correction for Winter2013
-      shiftMass = 1 + shift;
-    }
-  }
-
-  double scaledPx = tau.px()*shiftP;
-  double scaledPy = tau.py()*shiftP;
-  double scaledPz = tau.pz()*shiftP;
-  double scaledM  = tau.mass()*shiftP;
-  double scaledE  = TMath::Sqrt(scaledPx*scaledPx + scaledPy*scaledPy + scaledPz*scaledPz + scaledM*scaledM);
-
-
-  LorentzVector ShiftedTau(scaledPx, scaledPy, scaledPz, scaledE);
-  // cout<<"unscaled Tau : "<< tauP4.px() <<", "<< tauP4.py()<< ", "<< tauP4.pz()<<", " << tauP4.E()<< endl;
-  //cout<<"scaled tau :   "<< ShiftedTau.px() <<", "<< ShiftedTau.py()<< ", "<< ShiftedTau.pz()<<", " << ShiftedTau.E()<< endl;
-  
-  return ShiftedTau;
-}
 
 bool RootMaker::AddVertices(const edm::Event& iEvent)
 {
