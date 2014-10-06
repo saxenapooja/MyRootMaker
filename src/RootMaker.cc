@@ -150,19 +150,19 @@ RootMaker::RootMaker(const edm::ParameterSet& iConfig) :
 
   //recoilCorrector
   if(sampleName.find("ZJets") !=std::string::npos) {
-    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else if(sampleName.find("WJets")!=std::string::npos){
-    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_wjets53X_20pv_njet.root");
-    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_wjets53X_20pv_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else if(sampleName.find("Higgs")!=std::string::npos){
-    corrector_ = new RecoilCorrector(prefix + "/MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_higgs53X_20pv_njet.root");
-    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
-    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/src/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
+    corrector_ = new RecoilCorrector(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_higgs53X_20pv_njet.root");
+    corrector_->addMCFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_zmm53X_2012_njet.root");
+    corrector_->addDataFile(prefix + "MyRootMaker/MyRootMaker/data/RecoilCorrector_v7/recoilfits/recoilfit_datamm53X_2012_njet.root");
   }
   else
     corrector_ = 0;
