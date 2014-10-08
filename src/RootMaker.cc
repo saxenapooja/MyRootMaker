@@ -662,7 +662,27 @@ void RootMaker::beginJob(){
   tree->Branch("tau_L1trigger_match", tau_L1trigger_match, "tau_L1trigger_match[tau_count]/O");
   tree->Branch("tau_signalPFChargedHadrCands_size", tau_signalPFChargedHadrCands_size, "tau_signalPFChargedHadrCands_size[tau_count]/i");
   tree->Branch("tau_signalPFGammaCands_size", tau_signalPFGammaCands_size, "tau_signalPFGammaCands_size[tau_count]/i");
-  tree->Branch("tau_genTaudecayMode", (void*)tau_genTaudecayMode, "tau_genTaudecayMode[tau_count]/C");
+  tree->Branch("tau_genTaudecayMode_name", tau_genTaudecayMode_name, "tau_genTaudecayMode_name[tau_count]/C");
+  tree->Branch("tau_genJet_pt", tau_genJet_pt, "tau_genJet_pt[tau_count]/F");
+  tree->Branch("tau_genJet_px", tau_genJet_px, "tau_genJet_px[tau_count]/F");
+  tree->Branch("tau_genJet_py", tau_genJet_py, "tau_genJet_py[tau_count]/F");
+  tree->Branch("tau_genJet_pz", tau_genJet_pz, "tau_genJet_pz[tau_count]/F");
+  tree->Branch("tau_genJet_e", tau_genJet_e, "tau_genJet_e[tau_count]/F");
+  tree->Branch("tau_genDecayMode", tau_genDecayMode, "tau_genDecayMode[tau_count]/I");
+
+  tree->Branch("tau_byCombinedIsolationDeltaBetaCorrRaw", tau_byCombinedIsolationDeltaBetaCorrRaw, "tau_byCombinedIsolationDeltaBetaCorrRaw/F");
+  tree->Branch("tau_byCombinedIsolationDeltaBetaCorrRaw3Hits", tau_byCombinedIsolationDeltaBetaCorrRaw3Hits, "tau_byCombinedIsolationDeltaBetaCorrRaw3Hits/F");
+  tree->Branch("tau_byIsolationMVA3oldDMwoLTraw", tau_byIsolationMVA3oldDMwoLTraw, "tau_byIsolationMVA3oldDMwoLTraw/F");
+  tree->Branch("tau_byIsolationMVA3oldDMwLTraw", tau_byIsolationMVA3oldDMwLTraw, "tau_byIsolationMVA3oldDMwLTraw/F");
+  tree->Branch("tau_byIsolationMVA3newDMwoLTraw",tau_byIsolationMVA3newDMwoLTraw , "tau_byIsolationMVA3newDMwoLTraw/F");
+  tree->Branch("tau_byIsolationMVA3newDMwLTraw",tau_byIsolationMVA3newDMwLTraw , "tau_byIsolationMVA3newDMwLTraw/F");
+  tree->Branch("tau_againstElectronMVA5raw", tau_againstElectronMVA5raw, "tau_againstElectronMVA5raw/F");
+  tree->Branch("tau_againstMuonMVAraw", tau_againstMuonMVAraw, "tau_againstMuonMVAraw/F");
+  tree->Branch("tau_againstElectronMVA5category", tau_againstElectronMVA5category, "tau_againstElectronMVA5category/F");
+  tree->Branch("tau_decayModeFindingNewDMs", tau_decayModeFindingNewDMs, "tau_decayModeFindingNewDMs/F");
+  
+  tree->Branch("tau_decayModeFindingOldDMs", tau_decayModeFindingOldDMs, "tau_decayModeFindingOldDMs/F");
+  tree->Branch("tau_decayModeFinding", tau_decayModeFinding, "tau_decayModeFinding/F");
 
   // ditau study
   tree->Branch("ditau_Index",&ditau_Index,"ditau_Index/i");
@@ -1189,12 +1209,15 @@ void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   strcpy(run_hlttaunames, alltaunames.c_str());
   strcpy(run_hltphotonnames, allphotonnames.c_str());
   strcpy(run_hltjetnames, alljetnames.c_str());
+
   string alltaudiscriminators;
   if(cTauDiscriminators.size() > sizeof(tau_dishps[0])*8)
     throw cms::Exception("Too many tau discrimintors selected");
+
   for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
     {
       alltaudiscriminators += cTauDiscriminators[i] + string(" ");
+      //cout<<i<<"   alltaudiscriminators : "<< alltaudiscriminators << endl;
     }
   strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
   
@@ -2758,10 +2781,68 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_bremsrecoveryeoverplead[tau_count]                  = (*Taus)[i].ecalStripSumEOverPLead();
 	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
 	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
+	  tau_signalPFChargedHadrCands_size[tau_count]            = (*Taus)[i].signalPFChargedHadrCands().size();   
+	  tau_signalPFGammaCands_size[tau_count]                  = (*Taus)[i].signalPFGammaCands().size();
+	  
+	  //raw
+	  tau_byCombinedIsolationDeltaBetaCorrRaw[tau_count]       = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw");
+	  tau_byCombinedIsolationDeltaBetaCorrRaw3Hits[tau_count]  = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+	  tau_byIsolationMVA3oldDMwoLTraw[tau_count]               = (*Taus)[i].tauID("byIsolationMVA3oldDMwoLTraw");
+	  tau_byIsolationMVA3oldDMwLTraw[tau_count]                = (*Taus)[i].tauID("byIsolationMVA3oldDMwLTraw");
+	  tau_byIsolationMVA3newDMwoLTraw[tau_count]               = (*Taus)[i].tauID("byIsolationMVA3newDMwoLTraw");
+	  tau_byIsolationMVA3newDMwLTraw[tau_count]                = (*Taus)[i].tauID("byIsolationMVA3newDMwLTraw");
+	  tau_againstElectronMVA5raw[tau_count]                    = (*Taus)[i].tauID("againstElectronMVA5raw");
+	  tau_againstMuonMVAraw[tau_count]                         = (*Taus)[i].tauID("againstMuonMVAraw");
+	  
+	  //category
+	  tau_againstElectronMVA5category[tau_count]               = (*Taus)[i].tauID("againstElectronMVA5category");
 
-	  if( ((*Taus)[i].genJet())) 
-	    tau_genTaudecayMode[tau_count]                        = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
-	  else tau_genTaudecayMode[tau_count]                     = -1.;
+	  //decaymode 
+	  tau_decayModeFindingNewDMs[tau_count]                    = (*Taus)[i].tauID("decayModeFindingNewDMs");             
+	  tau_decayModeFindingOldDMs[tau_count]                    = (*Taus)[i].tauID("decayModeFindingOldDMs");
+	  tau_decayModeFinding[tau_count]                          = (*Taus)[i].tauID("decayModeFinding");
+
+
+// 	  tau_againstelectronVLoosemva5[tau_count]                = (*Taus)[i].tauID("againstElectronVLooseMVA5");
+// 	  tau_againstelectronLoosemva5[tau_count]                 = (*Taus)[i].tauID("againstElectronLooseMVA5");
+// 	  tau_againstelectronMediummva5[tau_count]                = (*Taus)[i].tauID("againstElectronMediumMVA5");
+// 	  tau_againstelectronTightmva5[tau_count]                 = (*Taus)[i].tauID("againstElectronTightMVA5");
+// 	  tau_againstelectronDeadECAL[tau_count]                  = (*Taus)[i].tauID("againstElectronDeadECAL");
+// 	  tau_againstelectronmva5category[tau_count]              = (*Taus)[i].tauID("againstElectronMVA5category"); //OK
+// 	  tau_bycombinedisolationdeltabetacorrraw3hits[tau_count] = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"); //OK
+
+	  if( ((*Taus)[i].genJet())) {
+	    
+	    //working piece
+	    std::string genTauDecayMode = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet()));
+	    if( genTauDecayMode.find("oneProng0Pi0")!=string::npos ) 	      tau_genDecayMode[tau_count] = 0;
+	    else if( genTauDecayMode.find("oneProng1Pi0")!=string::npos )     tau_genDecayMode[tau_count] = 1;
+	    else if( genTauDecayMode.find("oneProng2Pi0")!=string::npos )     tau_genDecayMode[tau_count] = 2;
+	    else if( genTauDecayMode.find("oneProngOther")!=string::npos )    tau_genDecayMode[tau_count] = 3;
+	    else if( genTauDecayMode.find("threeProng0Pi0")!=string::npos )   tau_genDecayMode[tau_count] = 4;
+	    else if( genTauDecayMode.find("threeProng1Pi0")!=string::npos )   tau_genDecayMode[tau_count] = 5;
+	    else if( genTauDecayMode.find("threeProngOther")!=string::npos )  tau_genDecayMode[tau_count] = 6;
+	    else if( genTauDecayMode.find("rare")!=string::npos ) 	      tau_genDecayMode[tau_count] = 7;
+	    else   tau_genDecayMode[tau_count]                                = -99;
+	    //alternative, did not work  :(
+	    tau_genTaudecayMode_name[tau_count]                        = genTauDecayMode;
+	    
+	    const reco::GenJet *JET = (*Taus)[i].genJet();
+	    tau_genJet_pt[tau_count]                              = JET->pt();
+	    tau_genJet_px[tau_count]                              = JET->px();
+	    tau_genJet_py[tau_count]                              = JET->py();
+	    tau_genJet_pz[tau_count]                              = JET->pz();
+	    tau_genJet_e[tau_count]                               = JET->energy();
+	  }
+	  else {
+	    tau_genDecayMode[tau_count]                         = -99;    
+	    tau_genTaudecayMode_name[tau_count]                 = -1;
+	    tau_genJet_pt[tau_count]                            = -99.0;
+	    tau_genJet_px[tau_count]                            = -99.0;
+	    tau_genJet_py[tau_count]                            = -99.0;
+	    tau_genJet_pz[tau_count]                            = -99.0;
+	    tau_genJet_e[tau_count]                             = -99.0;
+	  }
 	  
 	  SignedImpactParameter3D signed_ip3D;
 	  // std::vector<reco::PFCandidate> leadPFChargedHadrCand_;
