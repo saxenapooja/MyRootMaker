@@ -1217,9 +1217,10 @@ void RootMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   for(unsigned i = 0 ; i < cTauDiscriminators.size() ; i++)
     {
       alltaudiscriminators += cTauDiscriminators[i] + string(" ");
-      //cout<<i<<"   alltaudiscriminators : "<< alltaudiscriminators << endl;
+      //      cout<<i<<"   alltaudiscriminators : "<< alltaudiscriminators << endl;
     }
   strcpy(run_taudiscriminators, alltaudiscriminators.c_str());
+  //  cout<<"run_taudiscriminators : " << run_taudiscriminators << endl;
   
   run_hltprescaletablescount = HLTConfiguration.prescaleSize()*HLTConfiguration.size();
   for(unsigned j = 0 ; j < HLTConfiguration.prescaleSize() ; j++)
@@ -2754,10 +2755,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 	  // skiming  selection
 	  if((cSkim & SKIM_ALL) == 0 && (*Taus)[i].pt() < 10) continue; 
-	  if((*Taus)[i].eta() > 2.2 )                         continue;
-	  if((*Taus)[i].tauID("decayModeFinding")     < 0.5 ) continue;
-
 	  if(doDebug) cout << "Skimmed events..."<< endl;
+
 	  if((*Taus)[i].pt() > 20 && (*Taus)[i].tauID("decayModeFinding") > 0.5) ++nGoodTaus;
 	  tauIndexSelection.push_back(i);
 	  
@@ -2793,7 +2792,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_byIsolationMVA3newDMwLTraw[tau_count]                = (*Taus)[i].tauID("byIsolationMVA3newDMwLTraw");
 	  tau_againstElectronMVA5raw[tau_count]                    = (*Taus)[i].tauID("againstElectronMVA5raw");
 	  tau_againstMuonMVAraw[tau_count]                         = (*Taus)[i].tauID("againstMuonMVAraw");
-	  
+
 	  //category
 	  tau_againstElectronMVA5category[tau_count]               = (*Taus)[i].tauID("againstElectronMVA5category");
 
@@ -2803,6 +2802,14 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_decayModeFinding[tau_count]                          = (*Taus)[i].tauID("decayModeFinding");
 
 
+	  //testing for tauIDs existence
+// 	  cout<<" decayModeFindingOldDMs " <<   (*Taus)[i].isTauIDAvailable("decayModeFindingOldDMs") << endl;
+// 	  cout<<" byTightIsolationMVA3oldDMwLT " << (*Taus)[i].isTauIDAvailable("byTightIsolationMVA3oldDMwLT") << endl;
+// 	  std::vector< std::pair<std::string, float> > tauIDs_ = (*Taus)[i].tauIDs();
+// 	  for (std::vector<std::pair<std::string, float>>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+// 	    cout<<" ids : " << (it->first) << "  sec : " << (it->second) << endl;
+// 	  }
+ 
 // 	  tau_againstelectronVLoosemva5[tau_count]                = (*Taus)[i].tauID("againstElectronVLooseMVA5");
 // 	  tau_againstelectronLoosemva5[tau_count]                 = (*Taus)[i].tauID("againstElectronLooseMVA5");
 // 	  tau_againstelectronMediummva5[tau_count]                = (*Taus)[i].tauID("againstElectronMediumMVA5");
